@@ -32,6 +32,12 @@ public class ResultBean {
     private String msg ;
     private Object data ;
 
+    public ResultBean(boolean success, String msg, Object data) {
+        this.success = success;
+        this.msg = msg;
+        this.data = data;
+    }
+
     public boolean getSuccess() {
         return success;
     }

@@ -1,6 +1,7 @@
 package com.shasly.common.utils;
 
 import com.shasly.common.bean.User;
+import com.shasly.common.bean.UserActivate;
 
 import java.io.UnsupportedEncodingException;
 import java.net.Inet4Address;
@@ -23,7 +24,7 @@ import javax.mail.internet.MimeMessage;
  * 4.利用Transport 发送邮件
  * */
 public class EmailUtils {
-	public static void sendEmail(User user){
+	public static void sendEmail(UserActivate user){
 		//发送方
 		String myAccount = "cqjava1701@163.com";
 		//授权码
@@ -61,13 +62,13 @@ public class EmailUtils {
 		
 	}
 
-	private static MimeMessage createMsg(Session session, String myAccount, User user) {
+	private static MimeMessage createMsg(Session session, String myAccount, UserActivate user) {
 		//使用session对象 获取待发送的邮件信息
 		MimeMessage message = new MimeMessage(session);
 		//3.设置发件人 收件人 标题 邮件内容 附件 发送时间等等
 		try {
 			//3.1发件人 from
-			message.setFrom(new InternetAddress(myAccount, "小米", "utf-8"));
+			message.setFrom(new InternetAddress(myAccount, "Shasly", "utf-8"));
 			//3.2收件人 to 支持可以添加多个收件人 | 抄送 | 密送 如果想要发送给多个人 可以重复下面代码多次
 			/*
 			 * MimeMessage.RecipientType.TO 发送
@@ -76,11 +77,11 @@ public class EmailUtils {
 			 * */
 			message.setRecipient(MimeMessage.RecipientType.TO, new InternetAddress(user.getEmail(), user.getUsername(), "utf-8"));
 			//3.3生成邮件主题
-			message.setSubject("小米商城账号激活邮件","utf-8");
+			message.setSubject("Shasly商城激活邮件","utf-8");
 			String ip = Inet4Address.getLocalHost().getHostAddress();
-			String url = "http://"+ip+":8080/MyXiaoMi/activate?e="+ Base64Utils.encode(user.getEmail())+"&c="+Base64Utils.encode(user.getCode());
+			String url = "http://"+ip+":8080/shasly/user/activate/"+ Base64Utils.encode(user.getEmail())+"/"+Base64Utils.encode(user.getActivation_code());
 			//设置邮件正文 setContent 可以使用html标签
-			message.setContent(user.getUsername()+",你好<br>欢迎注册小米商城! 请点击链接进行激活:<a href='"+url+"'>"+url+"</a>","text/html;charset=utf-8");
+			message.setContent(user.getUsername()+",你好<br>欢迎注册Shasly商城! 请点击链接进行激活:<a href='"+url+"'>"+url+"</a>","text/html;charset=utf-8");
 			//设置邮件的发送时间 是立即发送
 			message.setSentDate(new Date());
 			//保存设置

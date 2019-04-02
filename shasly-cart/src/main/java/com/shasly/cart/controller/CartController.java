@@ -33,6 +33,7 @@ import com.shasly.common.bean.Cart;
 import com.shasly.common.bean.CartList;
 import com.shasly.common.bean.Goods;
 import com.shasly.common.bean.User;
+import com.shasly.common.jedis.JedisClientPool;
 import com.shasly.common.utils.DataListUtils;
 import com.shasly.common.utils.TextUtils;
 import org.springframework.web.bind.annotation.*;
@@ -44,42 +45,22 @@ import java.io.IOException;
 @RestController("/cart")
 public class CartController {
 
-    private final CartService cartService ;
+    private final CartService cartService;
+    private final JedisClientPool jedisClientPool ;
 
-    public CartController(CartService cartService) {
+    //通过构造方法的方式自动注入
+    public CartController(CartService cartService, JedisClientPool jedisClientPool) {
         this.cartService = cartService;
+        this.jedisClientPool = jedisClientPool;
     }
 
 
     /**
      * 添加商品到购物车
-     *
-     * @param request
-     * @param response
      */
-    @PostMapping("/addcart")
-    public void addCart(HttpServletRequest request, HttpServletResponse response) {
-        //System.out.println("addCart执行了");
+    @PostMapping(value = "/addcart")
+    public void addCart(@RequestParam("goodsId") Integer gid, @RequestParam("number") Integer number) {
 
-        // 取得商品id及数量
-        String goodsId = request.getParameter("goodsId");
-        String number = request.getParameter("number");
-        int pid = 0;
-        int num = 0;
-        if (!TextUtils.empty(goodsId)) {
-            pid = Integer.parseInt(goodsId);
-        }else {
-            request.setAttribute("msg", "商品不存在");
-            request.getRequestDispatcher("/message.jsp") ;
-            return ;
-        }
-        if (!TextUtils.empty(number)) {
-            num = Integer.parseInt(number);
-        }else {
-            request.setAttribute("msg", "商品数量有误");
-            request.getRequestDispatcher("/message.jsp") ;
-            return ;
-        }
 
         // 取得商品价格
         Goods goods = new GoodsServiceImpl().findById(pid);
@@ -123,7 +104,7 @@ public class CartController {
     @GetMapping("/getcart")
     public void getCart(HttpServletRequest request, HttpServletResponse response) {
 
-        CartList cartList = DataListUtils.getCartList(request, response) ;
+        CartList cartList = DataListUtils.getCartList(request, response);
         request.setAttribute("cart", cartList);
         try {
             request.getRequestDispatcher("/cart.jsp").forward(request, response);
@@ -138,7 +119,7 @@ public class CartController {
      * 更改商品数量
      *
      * @param request
-     * @param response
+     * @param respon3se
      */
     @PostMapping("/addcartajax")
     public void addCartAjax(HttpServletRequest request, HttpServletResponse response) {

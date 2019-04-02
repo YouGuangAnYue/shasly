@@ -10,7 +10,7 @@ public class DataListUtils {
 
 
 
-	public static List<Address> getAddressList(HttpServletRequest request, HttpServletResponse response) {
+	/*public static List<Address> getAddressList(HttpServletRequest request, HttpServletResponse response) {
 		AddressService service = new AddressServiceImpl();
 
 		// 获取用户id
@@ -36,5 +36,5 @@ public class DataListUtils {
 		
 		return orders ;
 
-	}
+	}*/
 }
