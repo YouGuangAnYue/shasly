@@ -30,6 +30,14 @@ public class JedisClientPool implements JedisClient {
 	}
 
 	@Override
+	public String set(String key, String value, String nxxx, String expx, Long time) {
+		Jedis jedis = jedisPool.getResource();
+		String result = jedis.set(key, value,nxxx,expx,time);
+		jedis.close();
+		return result;
+	}
+
+	@Override
 	public String get(String key) {
 		Jedis jedis = jedisPool.getResource();
 		String result = jedis.get(key);
@@ -57,14 +65,6 @@ public class JedisClientPool implements JedisClient {
 	public Long ttl(String key) {
 		Jedis jedis = jedisPool.getResource();
 		Long result = jedis.ttl(key);
-		jedis.close();
-		return result;
-	}
-
-	@Override
-	public Long incr(String key) {
-		Jedis jedis = jedisPool.getResource();
-		Long result = jedis.incr(key);
 		jedis.close();
 		return result;
 	}

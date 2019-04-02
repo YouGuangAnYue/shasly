@@ -9,6 +9,8 @@ public interface JedisClient {
 
 	String set(String key, String value);
 
+	String set(String key, String value,String nxxx,String expx,Long time);
+
 	String get(String key);
 
 	Boolean exists(String key);
@@ -16,8 +18,6 @@ public interface JedisClient {
 	Long expire(String key, int seconds);
 
 	Long ttl(String key);
-
-	Long incr(String key);
 
 	Long hset(String key, String field, String value);
 

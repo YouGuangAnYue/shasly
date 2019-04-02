@@ -7,7 +7,10 @@ import com.shasly.common.exception.UserException;
 import com.shasly.common.jedis.JedisClientPool;
 import com.shasly.common.utils.TextUtils;
 import com.shasly.user.service.UserService;
+import com.shasly.user.vo.LoginVo;
+import com.shasly.user.vo.RegisterVo;
 import org.springframework.web.bind.annotation.*;
+import redis.clients.jedis.Jedis;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
@@ -21,9 +24,9 @@ import java.io.IOException;
 @RestController
 public class UserController {
 
-    private final UserService userService ;
-    private final DefaultKaptcha defaultKaptcha ;
-    private final JedisClientPool jedisClientPool ;
+    private final UserService userService;
+    private final DefaultKaptcha defaultKaptcha;
+    private final JedisClientPool jedisClientPool;
 
     public UserController(UserService userService, DefaultKaptcha defaultKaptcha, JedisClientPool jedisClientPool) {
         this.userService = userService;
@@ -35,60 +38,64 @@ public class UserController {
      * 登录
      */
     @PostMapping(value = "/login")
-    public String login(@RequestParam("username") String username, @RequestParam("password") String password,
-                        @RequestParam("vcode") String vcode, @RequestParam("auto") String auto) {
+    public ResultBean login(@RequestBody LoginVo loginVo, @CookieValue(value = "vcode") String vcode, HttpServletResponse response) {
 
         // 用户名密码不能为空
-        if (TextUtils.empty(username) || TextUtils.empty(password)) {
-            return "login.jsp";
+        if (TextUtils.empty(loginVo.getUsername()) || TextUtils.empty(loginVo.getPassword())) {
+            return new ResultBean(false, "用户名或密码为空", null);
         }
-        // 验证码不能为空
-        if (TextUtils.empty(vcode)) {
-            request.setAttribute("msg", "验证码不能为空");
-            return "/login.jsp";
+        // 检验验证码
+        if (!jedisClientPool.get(vcode).equals(loginVo.getVcode())) {
+            return new ResultBean(false, "验证码错误", null);
         }
         // 查询用户是否存在
-        UserService us = new UserServiceImpl();
-        User user = us.login(username, password);
-        if (user != null) {
-            request.getSession().setAttribute("user", user);
-            if (auto != null) {
-                username = URLEncoder.encode(username, "utf-8") ;
-                Cookie cookie = new Cookie("userInfo", username + "#" + MD5Utils.md5(password));
-                cookie.setMaxAge(14 * 24 * 60 * 60);
-                cookie.setHttpOnly(true);
-                response.addCookie(cookie);
-            }
-        } else {
-            request.setAttribute("msg", "密码错误");
-            return "/login.jsp";
+        User user = null;
+        try {
+            user = userService.login(loginVo.getUsername(), loginVo.getPassword());
+        } catch (UserException e) {
+            return new ResultBean(false, "服务器忙...", null);
         }
-        response.sendRedirect(request.getContextPath() + "/index.jsp");
-        return null;
+        if (user != null) {
+            String autoLogin = TextUtils.getString(64);
+            Cookie cookie = new Cookie("autoLogin", autoLogin);
+            
+            jedisClientPool.set(autoLogin, "" + user.getUid(), "nx", "ex", (long) (30 * 60)) ;
+            if (loginVo.getAuto() != null) {
+                cookie.setMaxAge(14 * 24 * 60 * 60);
+            }else {
+                cookie.setMaxAge(30 * 60);
+            }
+            cookie.setHttpOnly(true);
+            response.addCookie(cookie);
+            return new ResultBean(true,"登录成功",loginVo.getUsername()) ;
+        } 
+        return new ResultBean(false,"用户名或密码错误",null) ;
+        
     }
 
     /**
      * 注册
-     *
-     * @param request
-     * @param response
      */
-    public void register(HttpServletRequest request, HttpServletResponse response) {
-        User user = new User();
-        try {
-            BeanUtils.populate(user, request.getParameterMap());
-            // System.out.println(user);
-            UserService us = new UserServiceImpl();
-            us.register(user);
-            // 跳转到注册成功页面
-            response.sendRedirect(request.getContextPath() + "/registerSuccess.jsp");
-        } catch (Exception e) {
-            try {
-                response.sendRedirect(request.getContextPath() + "/error/error.jsp");
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
+    @PostMapping(value = "/register")
+    public ResultBean register(@RequestBody RegisterVo registerVo) {
+        if (!registerVo.getPassword().equals(registerVo.getRePassword())) {
+            return new ResultBean(false, "两次密码不一致", null);
         }
+        String email = registerVo.getEmail();
+        String phone = registerVo.getPhone();
+        boolean b = false;
+        if (registerVo.getEmail() == null) {
+            if (!registerVo.getPhoneCode().equals(jedisClientPool.get(phone))) {
+                return new ResultBean(false, "验证码错误", null);
+            }
+            b = userService.registerByPhone(new User(registerVo.getUsername(), registerVo.getPassword(), null, phone));
+        } else {
+            b = userService.registerByEmail(new User(registerVo.getUsername(), registerVo.getPassword(), email, null));
+        }
+        if (b)
+            return new ResultBean(true, "注册成功", null);
+        else
+            return new ResultBean(false, "注册失败", null);
     }
 
     /**
@@ -98,11 +105,11 @@ public class UserController {
     public ResultBean checkUserName(@RequestParam("username") String username) {
 
         boolean b = userService.checkUserName(username);
-        if (b){
-            return new ResultBean(false,"用户名已存在",null) ;
+        if (b) {
+            return new ResultBean(false, "用户名已存在", null);
         }
 
-        return new ResultBean(true,"用户名可用",null) ;
+        return new ResultBean(true, "用户名可用", null);
 
     }
 
@@ -113,14 +120,14 @@ public class UserController {
      * @param response
      */
     @GetMapping(value = "/vcode")
-    public void validateCode(HttpServletRequest request, HttpServletResponse response) throws Exception{
+    public void validateCode(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         //获取vcde标记
         Cookie[] cookies = request.getCookies();
-        String vcode = null ;
+        String vcode = null;
         for (Cookie coo : cookies) {
-            if ("vcode".equals(coo.getName())){
-                vcode = coo.getValue() ;
+            if ("vcode".equals(coo.getName())) {
+                vcode = coo.getValue();
             }
         }
 
@@ -128,15 +135,18 @@ public class UserController {
         byte[] captchaChallengeAsJpeg = null;
         ByteArrayOutputStream jpegOutputStream = new ByteArrayOutputStream();
         try {
-            // 生产验证码字符串并保存到redis中
+            // 生成验证码字符串并保存到redis中
             String createText = defaultKaptcha.createText();
-            if (vcode == null){
-                vcode = TextUtils.getString(64) ;
-                Cookie cookie = new Cookie("vcode",vcode) ;
-                cookie.setMaxAge(5 * 60) ;
+            if (vcode == null) {
+                vcode = TextUtils.getString(64);
+                Cookie cookie = new Cookie("vcode", vcode);
+                //保存5分钟
+                cookie.setMaxAge(5 * 60);
+                cookie.setHttpOnly(true);
                 response.addCookie(cookie);
             }
-            jedisClientPool.set(vcode,createText) ;
+            //写入redis缓存当中
+            jedisClientPool.set(vcode, createText, "nx", "ex", (long) (5 * 60));
             // 使用生产的验证码字符串返回一个BufferedImage对象并转为byte写入到byte数组中
             BufferedImage challenge = defaultKaptcha.createImage(createText);
             ImageIO.write(challenge, "jpg", jpegOutputStream);
@@ -160,30 +170,23 @@ public class UserController {
 
     /**
      * 检验验证码
+     *
      * @param code
-     * @param request
+     * @param vcode
      * @param response
      * @return
      */
     @GetMapping(value = "/checkcode/{code}")
-    public ResultBean checkCode(@PathVariable("code") String code, HttpServletRequest request, HttpServletResponse response) {
-        //获取vcde标记
-        Cookie[] cookies = request.getCookies();
-        String vcode = null ;
-        for (Cookie coo : cookies) {
-            if ("vcode".equals(coo.getName())){
-                vcode = coo.getValue() ;
-            }
-        }
-
-        if (vcode == null){
-            return new ResultBean(false,"验证码已过期",null) ;
+    public ResultBean checkCode(@PathVariable("code") String code, @CookieValue(value = "vcode") String vcode, HttpServletResponse response) {
+        //判断vcode标记
+        if (vcode == null) {
+            return new ResultBean(false, "验证码已过期", null);
         }
         String rightCode = jedisClientPool.get(vcode);
         if (rightCode.equalsIgnoreCase(code)) {
-            return new ResultBean(true,"验证通过",null) ;
+            return new ResultBean(true, "验证通过", null);
         } else {
-            return new ResultBean(false,"验证码错误",null) ;
+            return new ResultBean(false, "验证码错误", null);
         }
     }
 
@@ -303,7 +306,7 @@ public class UserController {
         AddressService service = new AddressServiceImpl();
 
         //获取前台数据
-        Address address = new Address() ;
+        Address address = new Address();
         try {
             BeanUtils.populate(address, request.getParameterMap());
         } catch (Exception e) {
@@ -316,12 +319,11 @@ public class UserController {
 
         //修改地址
         address.setUid(uid);
-        service.update(address) ;
+        service.update(address);
 
         getAddress(request, response);
 
     }
-
 
 
 }

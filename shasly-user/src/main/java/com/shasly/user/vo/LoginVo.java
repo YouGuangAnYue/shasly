@@ -1,4 +1,4 @@
-package com.shasly.common.bean;/*
+package com.shasly.user.vo;/*
  *________________********_______________________
  *______________************_____________________
  *______________*************____________________
@@ -27,51 +27,62 @@ package com.shasly.common.bean;/*
  *
  */
 
-public class ResultBean {
-    private boolean success ;
-    private String msg ;
-    private Object data ;
+public class LoginVo {
+    private String username ;
+    private String password ;
+    private String vcode ;
+    private String auto ;
 
-    public ResultBean() {
+    public LoginVo() {
 
     }
 
-    public ResultBean(boolean success, String msg, Object data) {
-        this.success = success;
-        this.msg = msg;
-        this.data = data;
+    public LoginVo(String username, String password, String vcode, String auto) {
+        this.username = username;
+        this.password = password;
+        this.vcode = vcode;
+        this.auto = auto;
     }
 
-    public boolean getSuccess() {
-        return success;
+    public String getUsername() {
+        return username;
     }
 
-    public void setSuccess(boolean success) {
-        this.success = success;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public String getMsg() {
-        return msg;
+    public String getPassword() {
+        return password;
     }
 
-    public void setMsg(String msg) {
-        this.msg = msg;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
-    public Object getData() {
-        return data;
+    public String getVcode() {
+        return vcode;
     }
 
-    public void setData(Object data) {
-        this.data = data;
+    public void setVcode(String vcode) {
+        this.vcode = vcode;
+    }
+
+    public String getAuto() {
+        return auto;
+    }
+
+    public void setAuto(String auto) {
+        this.auto = auto;
     }
 
     @Override
     public String toString() {
-        return "ResultBean{" +
-                "success=" + success +
-                ", msg='" + msg + '\'' +
-                ", data=" + data +
+        return "LoginVo{" +
+                "username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", vcode='" + vcode + '\'' +
+                ", auto='" + auto + '\'' +
                 '}';
     }
 }

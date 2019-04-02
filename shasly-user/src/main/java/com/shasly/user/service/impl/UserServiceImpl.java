@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
      * 登录
      */
     @Override
-    public User login(String username, String password) throws Exception{
+    public User login(String username, String password) throws UserException{
         User user = userMapper.findByUsername(username);
         String pass = MD5Utils.md5(user.getSalt() + password);
         if (user.getPassword().equals(pass)) {

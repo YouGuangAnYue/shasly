@@ -2,9 +2,15 @@
 *.class
 
 # Log file
-*.log
-*.idea
-*.eclipse
+.iml
+.idea
+.gitignore
+.sh
+.classpath
+.project
+*.settings
+target
+logs
 
 # BlueJ files
 *.ctxt

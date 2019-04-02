@@ -1,6 +1,7 @@
 package com.shasly.user.service;
 
 import com.shasly.common.bean.User;
+import com.shasly.common.exception.UserException;
 
 import java.util.List;
 
@@ -8,7 +9,7 @@ public interface UserService {
 
     public List<User> findAll() ;
     public User findById(int id) ;
-    public User login(String username, String password) throws Exception;
+    public User login(String username, String password) throws UserException;
 
     public int remove(User user) ;
     public int modify(User user) ;

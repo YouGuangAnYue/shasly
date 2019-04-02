@@ -21,6 +21,7 @@
         <module>shasly-user</module>
         <module>shasly-goods</module>
         <module>shasly-order</module>
+        <module>shasly-sms</module>
     </modules>
 
     <properties>
