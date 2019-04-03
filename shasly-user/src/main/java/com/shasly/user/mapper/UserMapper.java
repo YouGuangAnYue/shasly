@@ -1,21 +1,26 @@
 package com.shasly.user.mapper;
 
 import com.shasly.common.bean.User;
+import com.shasly.common.bean.UserActivate;
 import com.shasly.common.bean.UserInfo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 public interface UserMapper {
 
-    public List<User> findAll() ;
-    public User findById(int id) ;
-    public User findByUsernameAndPassword(String username, String password) ;
-    //返回用户id
-    public int insertUser(User user) ;
+    List<User> findAll() ;
+    User findUserByUId(int uid) ;
+    User findByUsernameAndPassword(@Param("username") String username, @Param("password") String password) ;
+    //插入并获取用户id
+    int insertUser(User user) ;
     //返回更新成功数
-    public int update(User user) ;
-    public User findByUsername(String username);
-    public int activateUser(String email, String code);
+    int update(User user) ;
+    User findByUsername(String username);
+    int activateUser(String username);
 
     int insertUserInfo(UserInfo userInfo);
+
+    UserActivate findUserActivateByUsername(String username);
+
 }

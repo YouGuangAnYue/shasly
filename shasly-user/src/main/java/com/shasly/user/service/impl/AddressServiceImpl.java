@@ -17,16 +17,6 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Override
-    public List<Address> findByUId(int uid) {
-        return addressMapper.findByUId(uid) ;
-    }
-
-    @Override
-    public Address findById(int id) {
-        return addressMapper.findById(id) ;
-    }
-
-    @Override
     public boolean update(Address address) {
         int len = addressMapper.update(address) ;
         if (len > 0) {
@@ -45,8 +35,13 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Override
-    public boolean remove(int id) {
-        int len = addressMapper.delete(id) ;
+    public List<Address> findAddressByUId(String uid) {
+        return addressMapper.findAddressByUId(uid);
+    }
+
+    @Override
+    public boolean deleteByUIdAndAId(Integer aid, String uid) {
+        int len = addressMapper.deleteByUIdAndAId(aid,uid) ;
         if (len > 0) {
             return true ;
         }

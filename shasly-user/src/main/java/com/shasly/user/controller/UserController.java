@@ -1,16 +1,18 @@
 package com.shasly.user.controller;
 
 import com.google.code.kaptcha.impl.DefaultKaptcha;
+import com.shasly.common.bean.Address;
 import com.shasly.common.bean.ResultBean;
 import com.shasly.common.bean.User;
 import com.shasly.common.exception.UserException;
 import com.shasly.common.jedis.JedisClientPool;
+import com.shasly.common.utils.DataListUtils;
 import com.shasly.common.utils.TextUtils;
+import com.shasly.user.service.AddressService;
 import com.shasly.user.service.UserService;
 import com.shasly.user.vo.LoginVo;
 import com.shasly.user.vo.RegisterVo;
 import org.springframework.web.bind.annotation.*;
-import redis.clients.jedis.Jedis;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
@@ -19,17 +21,20 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.util.List;
 
 @RestController
+@RequestMapping(value = "/user")
 public class UserController {
 
     private final UserService userService;
+    private final AddressService addressService;
     private final DefaultKaptcha defaultKaptcha;
     private final JedisClientPool jedisClientPool;
 
-    public UserController(UserService userService, DefaultKaptcha defaultKaptcha, JedisClientPool jedisClientPool) {
+    public UserController(UserService userService, AddressService addressService, DefaultKaptcha defaultKaptcha, JedisClientPool jedisClientPool) {
         this.userService = userService;
+        this.addressService = addressService;
         this.defaultKaptcha = defaultKaptcha;
         this.jedisClientPool = jedisClientPool;
     }
@@ -38,6 +43,7 @@ public class UserController {
      * 登录
      */
     @PostMapping(value = "/login")
+    @CrossOrigin
     public ResultBean login(@RequestBody LoginVo loginVo, @CookieValue(value = "vcode") String vcode, HttpServletResponse response) {
 
         // 用户名密码不能为空
@@ -53,30 +59,32 @@ public class UserController {
         try {
             user = userService.login(loginVo.getUsername(), loginVo.getPassword());
         } catch (UserException e) {
-            return new ResultBean(false, "服务器忙...", null);
+            return new ResultBean(false, e.getMessage(), null);
         }
         if (user != null) {
-            String autoLogin = TextUtils.getString(64);
-            Cookie cookie = new Cookie("autoLogin", autoLogin);
-            
-            jedisClientPool.set(autoLogin, "" + user.getUid(), "nx", "ex", (long) (30 * 60)) ;
+            String token = TextUtils.getString(64);
+            Cookie cookie = new Cookie("token", token);
+            int time = 0;
             if (loginVo.getAuto() != null) {
-                cookie.setMaxAge(14 * 24 * 60 * 60);
-            }else {
-                cookie.setMaxAge(30 * 60);
+                time = 14 * 24 * 60 * 60;
+            } else {
+                time = 30 * 60;
             }
+            cookie.setMaxAge(time);
+            jedisClientPool.setex(token, "" + user.getUid(), time);
             cookie.setHttpOnly(true);
             response.addCookie(cookie);
-            return new ResultBean(true,"登录成功",loginVo.getUsername()) ;
-        } 
-        return new ResultBean(false,"用户名或密码错误",null) ;
-        
+            return new ResultBean(true, "登录成功", loginVo.getUsername());
+        }
+        return new ResultBean(false, "用户名或密码错误", null);
+
     }
 
     /**
      * 注册
      */
     @PostMapping(value = "/register")
+    @CrossOrigin
     public ResultBean register(@RequestBody RegisterVo registerVo) {
         if (!registerVo.getPassword().equals(registerVo.getRePassword())) {
             return new ResultBean(false, "两次密码不一致", null);
@@ -85,7 +93,9 @@ public class UserController {
         String phone = registerVo.getPhone();
         boolean b = false;
         if (registerVo.getEmail() == null) {
-            if (!registerVo.getPhoneCode().equals(jedisClientPool.get(phone))) {
+            String phoneCode = jedisClientPool.get(phone) ;
+            if (phoneCode == null) return new ResultBean(false, "验证码已失效", null);
+            if (!registerVo.getPhoneCode().equals(phoneCode)) {
                 return new ResultBean(false, "验证码错误", null);
             }
             b = userService.registerByPhone(new User(registerVo.getUsername(), registerVo.getPassword(), null, phone));
@@ -101,8 +111,9 @@ public class UserController {
     /**
      * 检查用户名是否存在
      */
-    @GetMapping(value = "/checkusername")
-    public ResultBean checkUserName(@RequestParam("username") String username) {
+    @GetMapping(value = "/checkusername/{username}")
+    @CrossOrigin
+    public ResultBean checkUserName(@PathVariable("username") String username) {
 
         boolean b = userService.checkUserName(username);
         if (b) {
@@ -114,12 +125,12 @@ public class UserController {
     }
 
     /**
-     * 生成验证码
-     *
+     * 生成图片验证码
      * @param request
      * @param response
      */
     @GetMapping(value = "/vcode")
+    @CrossOrigin
     public void validateCode(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         //获取vcde标记
@@ -146,7 +157,7 @@ public class UserController {
                 response.addCookie(cookie);
             }
             //写入redis缓存当中
-            jedisClientPool.set(vcode, createText, "nx", "ex", (long) (5 * 60));
+            jedisClientPool.setex(vcode, createText, 5 * 60);
             // 使用生产的验证码字符串返回一个BufferedImage对象并转为byte写入到byte数组中
             BufferedImage challenge = defaultKaptcha.createImage(createText);
             ImageIO.write(challenge, "jpg", jpegOutputStream);
@@ -177,6 +188,7 @@ public class UserController {
      * @return
      */
     @GetMapping(value = "/checkcode/{code}")
+    @CrossOrigin
     public ResultBean checkCode(@PathVariable("code") String code, @CookieValue(value = "vcode") String vcode, HttpServletResponse response) {
         //判断vcode标记
         if (vcode == null) {
@@ -192,137 +204,101 @@ public class UserController {
 
     /**
      * 退出登录
-     *
-     * @param request
-     * @param response
-     * @throws IOException
      */
-    public void logOut(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    @GetMapping(value = "/logout")
+    @CrossOrigin
+    public ResultBean logOut(@CookieValue(value = "token") String token, HttpServletResponse response) {
 
-        if (request.getSession().getAttribute("user") != null) {
-            request.getSession().removeAttribute("user");
+        if (token != null) {
+            Cookie cookie = new Cookie("token", token);
+            cookie.setMaxAge(0);
+            response.addCookie(cookie);
+            jedisClientPool.del(token);
         }
 
-        Cookie cookie = new Cookie("userInfo", "");
-        cookie.setMaxAge(0);
-        response.addCookie(cookie);
-
-        response.sendRedirect(request.getContextPath() + "/login.jsp");
+        return new ResultBean(true, "退出成功", null);
 
     }
 
     /**
      * 添加地址
-     *
-     * @param request
-     * @param response
      */
-    public void addAddress(HttpServletRequest request, HttpServletResponse response) {
+    @PostMapping(value = "/addaddress")
+    @CrossOrigin
+    public void addAddress(@RequestBody Address address, @CookieValue(value = "token") String token) {
+        String uid = jedisClientPool.get(token);
+        address.setUid(Integer.parseInt(uid));
+        addressService.add(address);
+        List<Address> list = addressService.findAddressByUId(uid);
 
-
-        // 获取地址信息
-        Address address = new Address();
-        try {
-            BeanUtils.populate(address, request.getParameterMap());
-            System.out.println(address);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        service.add(address);
-
-        getAddress(request, response);
     }
 
     /**
      * 获取用户全部地址
-     *
-     * @param request
-     * @param response
      */
-    public void getAddress(HttpServletRequest request, HttpServletResponse response) {
+    @GetMapping(value = "/getaddress")
+    @CrossOrigin
+    public ResultBean getAddress(@CookieValue(value = "token") String token) {
+        String uid = jedisClientPool.get(token);
         // 查看地址
-        List<Address> addList = DataListUtils.getAddressList(request, response);
-
-        request.setAttribute("addList", addList);
-        // 转发到地址管理界面
         try {
-            request.getRequestDispatcher("/self_info.jsp").forward(request, response);
+            List<Address> list = addressService.findAddressByUId(uid);
+            return new ResultBean(true, "查询成功", list);
         } catch (Exception e) {
-            e.printStackTrace();
+            return new ResultBean(false, "服务器忙", null);
         }
     }
 
     /**
      * 修改为默认地址
-     *
-     * @param request
-     * @param response
      */
-    public void defaultAddress(HttpServletRequest request, HttpServletResponse response) {
-        AddressService service = new AddressServiceImpl();
-        // 获取地址ID
-        String _id = request.getParameter("id");
-        int id = Integer.parseInt(_id);
+    @GetMapping(value = "/defaultAddress/{aid}")
+    @CrossOrigin
+    public ResultBean defaultAddress(@PathVariable(value = "aid") Integer aid, @CookieValue(value = "token") String token) {
+        String uid = jedisClientPool.get(token);
         // 取得所有地址
-        List<Address> addList = DataListUtils.getAddressList(request, response);
+        List<Address> addList = addressService.findAddressByUId(uid);
+
         for (Address address : addList) {
-            if (address.getId() == id) {
-                address.setLevel(1);
+            if (address.getAid() == aid) {
+                address.setDef(1);
+            } else if (address.getDef().intValue() == 1) {
+                address.setDef(0);
             } else {
-                address.setLevel(0);
+                continue;
             }
             // 修改地址属性
-            service.update(address);
+            addressService.update(address);
         }
-        getAddress(request, response);
+        return new ResultBean(true, "设置成功", addList);
     }
 
     /**
      * 删除地址
-     *
-     * @param request
-     * @param response
      */
-    public void deleteAddress(HttpServletRequest request, HttpServletResponse response) {
-        AddressService service = new AddressServiceImpl();
-        // 获取地址ID
-        String _id = request.getParameter("id");
-        int id = Integer.parseInt(_id);
-
-        // 输出地址
-        service.remove(id);
-
-        getAddress(request, response);
+    @GetMapping(value = "/deleteaddress/{aid}")
+    public ResultBean deleteAddress(@PathVariable(value = "aid") Integer aid, @CookieValue(value = "token") String token) {
+        String uid = jedisClientPool.get(token);
+        boolean b = addressService.deleteByUIdAndAId(aid, uid);
+        if (b)
+            return new ResultBean(true, "删除成功", null);
+        else
+            return new ResultBean(false, "删除失败", null);
     }
 
     /**
      * 修改地址
-     *
-     * @param request
-     * @param response
      */
-    public void updateAddress(HttpServletRequest request, HttpServletResponse response) {
-        AddressService service = new AddressServiceImpl();
-
-        //获取前台数据
-        Address address = new Address();
-        try {
-            BeanUtils.populate(address, request.getParameterMap());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        // 获取用户id
-        User user = (User) request.getSession().getAttribute("user");
-        int uid = user.getId();
-
-        //修改地址
-        address.setUid(uid);
-        service.update(address);
-
-        getAddress(request, response);
-
+    @PostMapping(value = "/updateaddress")
+    @CrossOrigin
+    public ResultBean updateAddress(@CookieValue(value = "token") String token,@RequestBody Address address) {
+        String uid = jedisClientPool.get(token);
+        address.setUid(Integer.parseInt(uid));
+        boolean b = addressService.update(address);
+        if (b)
+            return new ResultBean(true, "修改成功", null);
+        else
+            return new ResultBean(false, "修改失败", null);
     }
 
 

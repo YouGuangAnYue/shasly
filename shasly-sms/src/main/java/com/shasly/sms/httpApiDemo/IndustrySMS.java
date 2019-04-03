@@ -19,7 +19,7 @@ public class IndustrySMS
 {
 	private static String operation = "/industrySMS/sendSMS";
 	private static String accountSid = Config.ACCOUNT_SID;
-	//private static String smsContent = "【贝曼衣舍】您的验证码为"+SmsCodeUtils.smsCode()+"，请于"+30+"分钟内正确输入，如非本人操作，请忽略此短信。";
+	//private static String smsContent = "【酷风】您的验证码为"+SmsCodeUtils.smsCode()+"，请于"+30+"分钟内正确输入，如非本人操作，请忽略此短信。";
 
 	/**
 	 * 验证码通知短信
@@ -27,7 +27,7 @@ public class IndustrySMS
 	public static String execute(String to, Jedis jedis)
 	{
 		String tmpSmsContent = null;
-		String smsContent = "【贝曼衣舍】您的验证码为"+SmsCodeUtils.smsCode(to,jedis)+"，请于"+30+"分钟内正确输入，如非本人操作，请忽略此短信。";
+		String smsContent = "【酷风】您的验证码为"+SmsCodeUtils.smsCode(to,jedis)+"，请于"+30+"分钟内正确输入，如非本人操作，请忽略此短信。";
 	    try{
 	      tmpSmsContent = URLEncoder.encode(smsContent, "UTF-8");
 	    }catch(Exception e){

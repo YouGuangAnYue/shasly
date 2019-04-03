@@ -61,7 +61,6 @@ public class CartController {
     @PostMapping(value = "/addcart")
     public void addCart(@RequestParam("goodsId") Integer gid, @RequestParam("number") Integer number) {
 
-
         // 取得商品价格
         Goods goods = new GoodsServiceImpl().findById(pid);
         if (goods == null) {

@@ -1,0 +1,18 @@
+spring:
+  redis:
+    database: 0
+    host: 39.105.211.35
+    port: 6379
+    password:
+    jedis:
+      pool:
+        #最大连接数
+        max-active: 20
+        #最大阻塞时等待时间
+        max-wait: 3000
+        #最大空闲
+        max-idle: 5
+        #最小空闲
+        min-idle: 2
+    #链接超时时间
+    timeout: 2000

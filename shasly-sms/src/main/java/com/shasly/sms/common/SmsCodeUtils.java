@@ -17,12 +17,12 @@ public class SmsCodeUtils {
     private static final Random RANDOM = new SecureRandom();
     
 
-    public static String getNonce_str() {
+    public static String getNonce_str(int n) {
 
         // 如果需要4位，那 new char[4] 即可，其他位数同理可得
-        char[] nonceChars = new char[6];
+        char[] nonceChars = new char[n];
 
-        for (int index = 0; index < nonceChars.length; ++index) {
+        for (int index = 0; index < n; ++index) {
             nonceChars[index] = SYMBOLS.charAt(RANDOM.nextInt(SYMBOLS.length()));
         }
 
@@ -30,13 +30,16 @@ public class SmsCodeUtils {
     }
 
     public static String smsCode(String mobile,Jedis jedis){
-        jedis.setex(mobile,60*30,SmsCodeUtils.getNonce_str());
+        jedis.setex(mobile,60*30,SmsCodeUtils.getNonce_str(6));
+        //jedis.setex("18736981676",60*30,"123456");
         String validatecode = jedis.get(mobile);
+        jedis.close();
         return validatecode;
     }
 
     public static String getSmsCode(String mobile,Jedis jedis){
         String validatecode = jedis.get(mobile);
+        jedis.close();
         return validatecode;
     }
 

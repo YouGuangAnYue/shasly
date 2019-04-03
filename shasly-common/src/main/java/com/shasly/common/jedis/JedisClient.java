@@ -11,6 +11,8 @@ public interface JedisClient {
 
 	String set(String key, String value,String nxxx,String expx,Long time);
 
+	String setex(String key, String value, int time) ;
+
 	String get(String key);
 
 	Boolean exists(String key);

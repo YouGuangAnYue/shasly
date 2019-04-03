@@ -32,12 +32,13 @@ import com.shasly.common.bean.ResultBean;
 import com.shasly.common.jedis.JedisClientPool;
 import com.shasly.sms.httpApiDemo.IndustrySMS;
 import com.shasly.sms.pojo.ShortReslut;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import redis.clients.jedis.Jedis;
 
 import java.io.IOException;
 
+@RestController
+@RequestMapping(value = "/sms")
 public class SmsController {
 
     private final JedisClientPool jedisClientPool ;
@@ -46,23 +47,34 @@ public class SmsController {
         this.jedisClientPool = jedisClientPool;
     }
 
+    /**
+     * 发送验证码
+     * @param phone
+     * @return
+     */
     @CrossOrigin
-    @RequestMapping("/sendcode")
-    public ResultBean sendCode(String mobile) {
+    @GetMapping("/sendcode/{phone}")
+    public ResultBean sendCode(@PathVariable(value = "phone") String phone) {
+
         ObjectMapper objectMapper = new ObjectMapper();
         Jedis jedis = jedisClientPool.getJedisPool().getResource() ;
-        String result = IndustrySMS.execute(mobile,jedis);
+        String result = IndustrySMS.execute(phone,jedis);
+
         try {
+
             ShortReslut shortReslut = objectMapper.readValue(result, ShortReslut.class);
             System.out.println(shortReslut);
+
             if (shortReslut.getRespCode().equalsIgnoreCase("00000")) {
                 return new ResultBean(true,"发送验证码成功",null) ;
             } else if (shortReslut.getRespCode().equalsIgnoreCase("00006")) {
                 return new ResultBean(false,"发送失败",null) ;
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         return new ResultBean(false,"发送失败",null);
     }
 }

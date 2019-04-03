@@ -1,4 +1,4 @@
-package com.shasly.user.conf;
+package com.shasly.sms.conf;
 
 import com.shasly.common.jedis.JedisClientPool;
 import org.slf4j.Logger;
@@ -11,7 +11,7 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
 @Configuration
-public class JedisConfig extends CachingConfigurerSupport{
+public class JedisConfig extends CachingConfigurerSupport {
     private Logger logger = LoggerFactory.getLogger(JedisConfig.class);
 
     @Value("${spring.redis.host}")

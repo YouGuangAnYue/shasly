@@ -1,4 +1,4 @@
-package com.shasly.user.conf;
+package com.shasly.goods.conf;
 
 import com.shasly.common.jedis.JedisClientPool;
 import org.slf4j.Logger;

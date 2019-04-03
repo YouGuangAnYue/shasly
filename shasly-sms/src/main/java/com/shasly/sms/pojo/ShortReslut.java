@@ -16,15 +16,17 @@ public class ShortReslut implements Serializable {
     private List<String> failList;
     private String smsId;
 
-    @Override
-    public String toString() {
-        return "ShortReslut{" +
-                "respCode='" + respCode + '\'' +
-                ", respDesc='" + respDesc + '\'' +
-                ", failCount='" + failCount + '\'' +
-                ", failList=" + failList +
-                ", smsId='" + smsId + '\'' +
-                '}';
+    public ShortReslut() {
+
+    }
+
+    public ShortReslut(String respCode, String respDesc, String failCount, List<String> failList, String smsId) {
+
+        this.respCode = respCode;
+        this.respDesc = respDesc;
+        this.failCount = failCount;
+        this.failList = failList;
+        this.smsId = smsId;
     }
 
     public String getRespCode() {
@@ -67,16 +69,14 @@ public class ShortReslut implements Serializable {
         this.smsId = smsId;
     }
 
-    public ShortReslut() {
-
-    }
-
-    public ShortReslut(String respCode, String respDesc, String failCount, List<String> failList, String smsId) {
-
-        this.respCode = respCode;
-        this.respDesc = respDesc;
-        this.failCount = failCount;
-        this.failList = failList;
-        this.smsId = smsId;
+    @Override
+    public String toString() {
+        return "ShortReslut{" +
+                "respCode='" + respCode + '\'' +
+                ", respDesc='" + respDesc + '\'' +
+                ", failCount='" + failCount + '\'' +
+                ", failList=" + failList +
+                ", smsId='" + smsId + '\'' +
+                '}';
     }
 }

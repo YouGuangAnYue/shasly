@@ -38,6 +38,14 @@ public class JedisClientPool implements JedisClient {
 	}
 
 	@Override
+	public String setex(String key, String value, int time) {
+		Jedis jedis = jedisPool.getResource();
+		String result = jedis.setex(key ,time, value);
+		jedis.close();
+		return result;
+	}
+
+	@Override
 	public String get(String key) {
 		Jedis jedis = jedisPool.getResource();
 		String result = jedis.get(key);

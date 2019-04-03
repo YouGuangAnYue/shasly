@@ -1,16 +1,17 @@
 package com.shasly.user.mapper;
 
 import com.shasly.common.bean.Address;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 public interface AddressMapper {
-    public List<Address> findByUId(int uid) ;
-    public Address findById(int id) ;
 
-    public int update(Address address) ;
+    int update(Address address) ;
 
-    public int insert(Address address) ;
+    int insert(Address address) ;
 
-    public int delete(int id) ;
+    List<Address> findAddressByUId(String uid);
+
+    int deleteByUIdAndAId(@Param("aid") Integer aid,@Param("uid") String uid);
 }
