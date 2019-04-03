@@ -1,17 +1,5 @@
 package com.shasly.common.bean;
 
-/**
- * CREATE TABLE `tb_orderdetail` ( `id` INT(11) NOT NULL AUTO_INCREMENT, `Oid`
- * VARCHAR(100) DEFAULT NULL, `pid` INT(11) DEFAULT NULL, `num` INT(11) DEFAULT
- * NULL, `Money` DECIMAL(11,2) DEFAULT NULL, PRIMARY KEY (`id`), KEY
- * `fk_order_pid` (`pid`), KEY `fk_order_id` (`Oid`), CONSTRAINT `fk_order_id`
- * FOREIGN KEY (`Oid`) REFERENCES `tb_order` (`id`), CONSTRAINT `fk_order_pid`
- * FOREIGN KEY (`pid`) REFERENCES `tb_goods` (`id`) ) ENGINE=INNODB DEFAULT
- * CHARSET=utf8;
- * 
- * @author Administrator
- *
- */
 public class OrderDetail {
 	private int id;
 	private String oid;

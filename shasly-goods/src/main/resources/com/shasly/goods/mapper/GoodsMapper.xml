@@ -3,6 +3,54 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.shasly.goods.mapper.GoodsMapper">
+    <insert id="insertGoodsType">
+        INSERT INTO goods_type(name,level,pid)
+        VALUES (#{name},#{level},#{pid})
+    </insert>
+    <insert id="insertGoods">
+        INSERT INTO goods (name, picture, price, intro, tid_1, tid_2, tid_3)
+        VALUES (#{name},#{picture},#{price},#{intro},#{tid_1},#{tid_2},#{tid_3})
+    </insert>
 
 
+    <select id="findGoodsTypeByTId" resultType="com.shasly.common.bean.GoodsType">
+        SELECT tid,name,level,pid
+        FROM goods_type
+        WHERE tid = #{tid}
+    </select>
+    <select id="findGoodsByTIdAndLevel" resultType="com.shasly.common.bean.Goods">
+        SELECT gid,name,picture,price,intro,tid_1,tid_2,tid_3
+        FROM goods
+        <where>
+            <if test="level == 1">
+                tid_1=#{tid}
+            </if>
+            <if test="level == 2">
+                tid_2=#{tid}
+            </if>
+            <if test="level == 3">
+                tid_3=#{tid}
+            </if>
+        </where>
+
+    </select>
+    <select id="findAllGoodsType" resultType="com.shasly.common.bean.GoodsType">
+        SELECT tid,name,level,pid
+        FROM goods_type
+    </select>
+    <select id="findAllGoods" resultType="com.shasly.common.bean.Goods">
+        SELECT gid,name,picture,price,intro,tid_1,tid_2,tid_3
+        FROM goods
+    </select>
+    <select id="findGoodsDetailsByGId" resultType="com.shasly.goods.vo.GoodsDetails">
+        SELECT g.gid,g.name,g.price,g.picture,g.intro,g.tid_1,g.tid_2,g.tid_3,
+                e.star,e.point,e.sales_volume,e.total_collection,e.total_comment
+        FROM goods AS g INNER JOIN goods_evaluate AS e ON g.gid = e.gid
+        WHERE g.gid = #{gid}
+    </select>
+    <select id="findGoodsLikeName" resultType="com.shasly.common.bean.Goods">
+        SELECT gid,name,picture,price,intro,tid_1,tid_2,tid_3
+        FROM goods
+        WHERE name LIKE #{name}
+    </select>
 </mapper>

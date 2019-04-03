@@ -2,25 +2,36 @@ package com.shasly.goods.service.impl;
 
 import com.shasly.common.bean.Goods;
 import com.shasly.common.bean.GoodsType;
+import com.shasly.goods.mapper.GoodsMapper;
 import com.shasly.goods.service.GoodsService;
+import com.shasly.goods.vo.GoodsDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class GoodsServiceImpl implements GoodsService {
-    @Override
-    public List<Goods> findAllGoods() {
-        return null;
+
+    private final GoodsMapper goodsMapper ;
+
+    public GoodsServiceImpl(GoodsMapper goodsMapper) {
+        this.goodsMapper = goodsMapper;
     }
 
     @Override
-    public Goods findGoodsByGId(Integer gid) {
-        return null;
+    public List<Goods> findAllGoods() {
+        return goodsMapper.findAllGoods();
+    }
+
+    @Override
+    public GoodsDetails findGoodsByGId(Integer gid) {
+        return goodsMapper.findGoodsDetailsByGId(gid);
     }
 
     @Override
     public boolean addGoods(Goods goods) {
+        int len = goodsMapper.insertGoods(goods) ;
+        if (len > 0) return true ;
         return false;
     }
 
@@ -35,27 +46,34 @@ public class GoodsServiceImpl implements GoodsService {
     }
 
     @Override
-    public List<Goods> paging(Integer typeid, Integer pageIndex, Integer pageSize) {
-        return null;
+    public List<Goods> findGoodsByTId(Integer tid) {
+        GoodsType type = goodsMapper.findGoodsTypeByTId(tid) ;
+        List<Goods> goodsList = goodsMapper.findGoodsByTIdAndLevel(tid,type.getLevel()) ;
+        return goodsList ;
     }
 
     @Override
     public List<Goods> searchGoodsByName(String name) {
-        return null;
+        name = "\'%" + name + "\'%" ;
+        return goodsMapper.findGoodsLikeName(name);
     }
 
     @Override
     public List<GoodsType> findAllGoodsType() {
-        return null;
+        List<GoodsType> list = goodsMapper.findAllGoodsType() ;
+        return list;
     }
 
     @Override
     public GoodsType findGoodsTypeByTId(Integer tid) {
-        return null;
+        GoodsType goodsType = goodsMapper.findGoodsTypeByTId(tid) ;
+        return goodsType;
     }
 
     @Override
     public boolean addGoodsType(GoodsType goodsType) {
+        int len = goodsMapper.insertGoodsType(goodsType) ;
+        if (len > 0) return true ;
         return false;
     }
 

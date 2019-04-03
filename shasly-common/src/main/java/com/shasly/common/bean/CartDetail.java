@@ -1,16 +1,6 @@
 package com.shasly.common.bean;
-/**
- * CREATE TABLE `tb_cart` ( `id` INT(11) NOT NULL, `pid` INT(11) NOT NULL
- * DEFAULT '0', `Num` INT(11) DEFAULT NULL, `money` DECIMAL(11,2) DEFAULT NULL,
- * PRIMARY KEY (`id`,`pid`), KEY `fk_cart_pid` (`pid`), CONSTRAINT `fk_cart_id`
- * FOREIGN KEY (`id`) REFERENCES `tb_user` (`id`), CONSTRAINT `fk_cart_pid`
- * FOREIGN KEY (`pid`) REFERENCES `tb_goods` (`id`) ) ENGINE=INNODB DEFAULT
- * CHARSET=utf8;
- * 
- * @author Administrator
- *
- */
-public class Cart {
+
+public class CartDetail {
 
 	private Integer id ;
 	private Integer cid ;

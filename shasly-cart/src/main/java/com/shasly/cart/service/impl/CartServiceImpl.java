@@ -29,8 +29,9 @@ package com.shasly.cart.service.impl;/*
 
 import com.shasly.cart.mapper.CartMapper;
 import com.shasly.cart.service.CartService;
-import com.shasly.common.bean.Cart;
+import com.shasly.common.bean.CartDetail;
 import com.shasly.common.bean.CartList;
+import com.shasly.common.jedis.JedisClientPool;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,61 +40,111 @@ import java.util.List;
 public class CartServiceImpl implements CartService {
 
     private final CartMapper cartMapper ;
+    private final JedisClientPool jedisClientPool ;
 
-    public CartServiceImpl(CartMapper cartMapper) {
+    public CartServiceImpl(CartMapper cartMapper,JedisClientPool jedisClientPool) {
         this.cartMapper = cartMapper ;
+        this.jedisClientPool = jedisClientPool;
+    }
+
+
+    @Override
+    public List<CartList> getCartListByCId(Integer cid) {
+        return cartMapper.getCartListByCid(cid);
+    }
+
+    @Override
+    public CartDetail findByCIdAndGId(Integer cid, Integer gid) {
+        return null;
+    }
+
+    @Override
+    public boolean addCartDetail(CartDetail cartDetail) {
+        return false;
+    }
+
+    @Override
+    public boolean updateCartDetail(CartDetail cartDetail) {
+        return false;
+    }
+
+    @Override
+    public boolean removeByCId(Integer cid) {
+        return false;
+    }
+
+    @Override
+    public boolean removeByCIdAndGId(Integer cid, Integer gid) {
+        return false;
+    }
+
+    @Override
+    public Integer findCIdByUId(Integer uid) {
+        return null;
+    }
+
+    @Override
+    public boolean insertCartDetail(String token,CartDetail cartDetail) {
+        String cid = getCId(token) ;
+        cartDetail.setCid(Integer.parseInt(cid));
+        CartDetail _cartDetail = cartMapper.findCartDetailByCIdAndGId(cid,cartDetail.getGid());
+        //如果商品已存在
+        if (_cartDetail == null){
+            int len = cartMapper.insertCartDetail(cartDetail);
+            if (len > 0) return true;
+            return false;
+        }
+        //则将数量+1 ；
+        _cartDetail.setNumber(_cartDetail.getNumber() + 1);
+        return updateCartDetail(_cartDetail) ;
+    }
+
+    @Override
+    public List<CartList> findCartListByToken(String token) {
+        String cid = getCId(token) ;
+        List<CartList> list = cartMapper.getCartListByCid(Integer.parseInt(cid));
+        return list;
+    }
+
+    @Override
+    public boolean updateCartDetailNumber(String token,Integer gid, Integer number) {
+        String cid = getCId(token) ;
+        CartDetail cartDetail = cartMapper.findCartDetailByCIdAndGId(cid, gid);
+        //如果购物车中商品数量不足，则失败
+        if (cartDetail.getNumber() == 1 && number < 0)
+            return false ;
+        int len = cartMapper.updateNumberById(cartDetail.getId(),number) ;
+        if (len > 0)
+            return true ;
+
+        return false;
+    }
+
+    @Override
+    public boolean clearCart(String token) {
+
+        String cid = getCId(token) ;
+        int len = cartMapper.deleteByCId(Integer.parseInt(cid)) ;
+
+        if (len > 0)
+            return true ;
+
+        return false ;
     }
 
     /**
-     * 获取购物车清单
+     * 获取购物车id
+     * @param token
+     * @return
      */
-    public List<CartList> getCartList(Integer uid) {
-        //获取对应购物车id
-        int cid = cartMapper.getCidByUid(uid) ;
-
-        return cartMapper.getCartListByCid(cid) ;
-    }
-
-    @Override
-    public boolean add(Cart cart) {
-        int len = cartMapper.insert(cart) ;
-        if (len > 0) {
-            return true ;
+    private String getCId(String token) {
+        String uid = jedisClientPool.get(token);
+        String cid = jedisClientPool.get(uid + "cart") ;
+        if (cid == null){
+            cid = "" + findCIdByUId(Integer.parseInt(uid)) ;
+            jedisClientPool.setex(uid + "cart",cid,30*60) ;
         }
-        return false ;
-    }
-
-    @Override
-    public boolean removeById(int id) {
-        int len = cartMapper.deleteById(id) ;
-        if (len > 0) {
-            return true ;
-        }
-        return false ;
-    }
-
-    @Override
-    public boolean removeByIdAndPId(int id ,int pid) {
-        int len = cartMapper.deleteByIdAndPId(id, pid) ;
-        if (len > 0) {
-            return true ;
-        }
-        return false ;
-    }
-
-    @Override
-    public Cart findByIdAndPId(int id, int pid) {
-
-        return cartMapper.findByIdAndPId(id, pid) ;
-    }
-
-    @Override
-    public boolean update(Cart cart) {
-        int len = cartMapper.update(cart) ;
-        if (len > 0) {
-            return true ;
-        }
-        return false ;
+        return cid ;
     }
 
 }

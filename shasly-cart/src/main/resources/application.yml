@@ -23,3 +23,10 @@ spring:
         min-idle: 2
     #链接超时时间
     timeout: 2000
+
+#配置分页
+pagehelper:
+  helper-dialect: mysql
+  params: count=countsql
+  reasonable: true
+  support-methods-arguments: true

@@ -3,8 +3,6 @@ package com.shasly.goods.vo;
 public class GoodsDetails {
     //商品id
     private Integer gid;
-    //类型id
-    private Integer tid;
     //商品名称
     private String name;
     //商品图片
@@ -13,6 +11,12 @@ public class GoodsDetails {
     private double price;
     //商品介绍
     private String intro;
+    //一级分类id
+    private Integer tid_1;
+    //二级分类id
+    private Integer tid_2;
+    //三级分类id
+    private Integer tid_3;
     //商品星级
     private long star;
     //商品评分
@@ -30,14 +34,6 @@ public class GoodsDetails {
 
     public void setGid(Integer gid) {
         this.gid = gid;
-    }
-
-    public Integer getTid() {
-        return tid;
-    }
-
-    public void setTid(Integer tid) {
-        this.tid = tid;
     }
 
     public String getName() {
@@ -112,15 +108,41 @@ public class GoodsDetails {
         this.total_comment = total_comment;
     }
 
+    public Integer getTid_1() {
+        return tid_1;
+    }
+
+    public void setTid_1(Integer tid_1) {
+        this.tid_1 = tid_1;
+    }
+
+    public Integer getTid_2() {
+        return tid_2;
+    }
+
+    public void setTid_2(Integer tid_2) {
+        this.tid_2 = tid_2;
+    }
+
+    public Integer getTid_3() {
+        return tid_3;
+    }
+
+    public void setTid_3(Integer tid_3) {
+        this.tid_3 = tid_3;
+    }
+
     @Override
     public String toString() {
         return "GoodsDetails{" +
                 "gid=" + gid +
-                ", tid=" + tid +
                 ", name='" + name + '\'' +
                 ", picture='" + picture + '\'' +
                 ", price=" + price +
                 ", intro='" + intro + '\'' +
+                ", tid_1=" + tid_1 +
+                ", tid_2=" + tid_2 +
+                ", tid_3=" + tid_3 +
                 ", star=" + star +
                 ", point=" + point +
                 ", sales_volume=" + sales_volume +

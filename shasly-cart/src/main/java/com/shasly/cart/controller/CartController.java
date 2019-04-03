@@ -28,141 +28,89 @@ package com.shasly.cart.controller;/*
  */
 
 import com.shasly.cart.service.CartService;
-import com.shasly.cart.service.impl.CartServiceImpl;
-import com.shasly.common.bean.Cart;
-import com.shasly.common.bean.CartList;
-import com.shasly.common.bean.Goods;
-import com.shasly.common.bean.User;
-import com.shasly.common.jedis.JedisClientPool;
-import com.shasly.common.utils.DataListUtils;
-import com.shasly.common.utils.TextUtils;
+import com.shasly.common.bean.*;
+import com.shasly.common.utils.PageBeanUtils;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import java.util.List;
 
 @RestController("/cart")
 public class CartController {
 
     private final CartService cartService;
-    private final JedisClientPool jedisClientPool ;
 
     //通过构造方法的方式自动注入
-    public CartController(CartService cartService, JedisClientPool jedisClientPool) {
+    public CartController(CartService cartService) {
         this.cartService = cartService;
-        this.jedisClientPool = jedisClientPool;
     }
 
 
     /**
      * 添加商品到购物车
+     * @param cartDetail (gid,number,param)
+     * @param token
      */
     @PostMapping(value = "/addcart")
-    public void addCart(@RequestParam("goodsId") Integer gid, @RequestParam("number") Integer number) {
+    @CrossOrigin
+    public ResultBean addCart(@RequestBody() CartDetail cartDetail,
+                              @CookieValue("token") String token) {
 
-        // 取得商品价格
-        Goods goods = new GoodsServiceImpl().findById(pid);
-        if (goods == null) {
-            request.setAttribute("mag", "查无此商品");
-            request.getRequestDispatcher("/message.jsp");
-            return;
-        }
-        double money = goods.getPrice();
+        boolean b = cartService.insertCartDetail(token,cartDetail) ;
+        if (b) return new ResultBean(true,"添加商品到购物车成功",null) ;
 
-        // 取得用户id
-        User user = (User) request.getSession().getAttribute("user");
-        int id = user.getId();
-
-        // 添加商品
-        // 查看购物车内是否存在该商品
-        Cart cart = cartService.findByIdAndPId(id, pid);
-        if (cart == null) {
-            cart = new Cart(id, pid, num, money);
-            cartService.add(cart);
-        } else {
-            cart.setNum(cart.getNum() + num);
-            cartService.update(cart);
-        }
-
-        // 重定向
-        try {
-            response.sendRedirect(request.getContextPath() + "/cartSuccess.jsp");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        return new ResultBean(false,"添加商品到购物车失败",null);
 
     }
 
+
     /**
      * 获取用户购物车清单
-     *
-     * @param request
-     * @param response
+     * @param token
+     * @param pageSize
+     * @param pageNum
+     * @return
      */
-    @GetMapping("/getcart")
-    public void getCart(HttpServletRequest request, HttpServletResponse response) {
+    @GetMapping("/getcart/{pageSize}/{pageNum}")
+    @CrossOrigin
+    public ResultBean getCart(@CookieValue(value = "token") String token,
+                              @PathVariable(value = "pageSize") Integer pageSize,
+                              @PathVariable(value = "pageNum") Integer pageNum) {
 
-        CartList cartList = DataListUtils.getCartList(request, response);
-        request.setAttribute("cart", cartList);
-        try {
-            request.getRequestDispatcher("/cart.jsp").forward(request, response);
-        } catch (Exception e) {
-            request.setAttribute("mag", "服务器忙");
-            request.getRequestDispatcher("/error/error.jsp");
-        }
-
+        List<CartList> lists =  cartService.findCartListByToken(token) ;
+        return PageBeanUtils.baseResultBean(lists,pageNum,pageSize) ;
     }
 
     /**
      * 更改商品数量
-     *
-     * @param request
-     * @param respon3se
+     * @param token
+     * @param gid
+     * @param number
+     * @return
      */
-    @PostMapping("/addcartajax")
-    public void addCartAjax(HttpServletRequest request, HttpServletResponse response) {
-        // 获取商品id已经改变数量
-        String goodsId = request.getParameter("goodsId");
-        String number = request.getParameter("number");
-        // System.out.println(goodsId + "..." + number);
-        int pid = 0;
-        int num = 0;
-        if (!TextUtils.empty(goodsId)) {
-            pid = Integer.parseInt(goodsId);
-        }
-        if (!TextUtils.empty(number)) {
-            num = Integer.parseInt(number);
-        }
+    @GetMapping("/changecartdetail/{gid}/{number}")
+    @CrossOrigin
+    public ResultBean changeCartDetail(@CookieValue(value = "token") String token,
+                                       @PathVariable(value = "gid") Integer gid,
+                                       @PathVariable(value = "number") Integer number) {
+        boolean b = cartService.updateCartDetailNumber(token,gid,number) ;
+        if (b) return new ResultBean(true,"修改数量成功",null) ;
 
-        // 获取用户id
-        User user = (User) request.getSession().getAttribute("user");
-        int id = user.getId();
-
-        // 判断操作类型
-        //System.out.println(num);
-        if (num == 0) { // 删除
-            cartService.removeByIdAndPId(id, pid);
-        } else { // 修改数量
-            Cart cart = cartService.findByIdAndPId(id, pid);
-            cart.setNum(cart.getNum() + num);
-            cartService.update(cart);
-        }
-
+        return new ResultBean(false,"修改数量失败",null) ;
     }
 
     /**
      * 清空购物车
-     *
-     * @param request
+     * @param token
+     * @return
      */
-    @GetMapping("clearcart")
-    public void clearCartAjax(HttpServletRequest request) {
-        // 获取用户id
-        User user = (User) request.getSession().getAttribute("user");
-        int id = user.getId();
+    @GetMapping("/clearcart")
+    @CrossOrigin
+    public ResultBean clearCart(@CookieValue(value = "token") String token) {
+        boolean b = cartService.clearCart(token) ;
+        if (b) return new ResultBean(true,"清空购物车成功",null) ;
 
-        CartService service = new CartServiceImpl();
-        service.removeById(id);
+        return new ResultBean(false,"清空购物车失败",null) ;
     }
+
+
 }

@@ -17,7 +17,7 @@
         </association>
     </resultMap>
 
-    <insert id="insert">
+    <insert id="insertCartDetail">
         INSERT INTO cart_detail(cid, gid, number, param)
         values (#{cid},#{gid},#{number},#{param})
     </insert>
@@ -26,9 +26,16 @@
         UPDATE cart_detail SET number = number + #{number}
         WHERE id = #{id}
     </update>
+    <update id="updateNumberByCIdAndGId">
+        UPDATE cart_detail SET number = number + #{number}
+        WHERE cid = #{cid} AND gid = #{gid}
+    </update>
 
     <delete id="deleteById">
         DELETE FROM cart_detail WHERE id = #{id}
+    </delete>
+    <delete id="deleteByCId">
+        DELETE FROM cart_detail WHERE cid = #{cid}
     </delete>
 
 
@@ -49,5 +56,10 @@
 
     <select id="getCidByUid" resultType="java.lang.Integer">
         SELECT cid FROM cart WHERE uid = #{uid}
+    </select>
+    <select id="findCartDetailByCIdAndGId" resultType="com.shasly.common.bean.CartDetail">
+        SELECT id,cid,gid,number,param
+        FROM cart_detail
+        WHERE cid=#{cid} AND gid=#{gid}
     </select>
 </mapper>

@@ -7,25 +7,29 @@ import java.util.Date;
 
 public class Goods {
 	private Integer gid;
-	private Integer tid;
 	private String name;
 	private Date put_date;
 	private String picture;
 	private double price;
 	private String intro;
+	private Integer tid_1 ;
+	private Integer tid_2 ;
+	private Integer tid_3 ;
 
 	public Goods() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public Goods(Integer gid, Integer tid, String name, Date put_date, String picture, double price, String intro) {
+	public Goods(Integer gid, String name, Date put_date, String picture, double price, String intro, Integer tid_1, Integer tid_2, Integer tid_3) {
 		this.gid = gid;
-		this.tid = tid;
 		this.name = name;
 		this.put_date = put_date;
 		this.picture = picture;
 		this.price = price;
 		this.intro = intro;
+		this.tid_1 = tid_1;
+		this.tid_2 = tid_2;
+		this.tid_3 = tid_3;
 	}
 
 	public Integer getGid() {
@@ -34,14 +38,6 @@ public class Goods {
 
 	public void setGid(Integer gid) {
 		this.gid = gid;
-	}
-
-	public Integer getTid() {
-		return tid;
-	}
-
-	public void setTid(Integer tid) {
-		this.tid = tid;
 	}
 
 	public String getName() {
@@ -84,16 +80,42 @@ public class Goods {
 		this.intro = intro;
 	}
 
+	public Integer getTid_1() {
+		return tid_1;
+	}
+
+	public void setTid_1(Integer tid_1) {
+		this.tid_1 = tid_1;
+	}
+
+	public Integer getTid_2() {
+		return tid_2;
+	}
+
+	public void setTid_2(Integer tid_2) {
+		this.tid_2 = tid_2;
+	}
+
+	public Integer getTid_3() {
+		return tid_3;
+	}
+
+	public void setTid_3(Integer tid_3) {
+		this.tid_3 = tid_3;
+	}
+
 	@Override
 	public String toString() {
 		return "Goods{" +
 				"gid=" + gid +
-				", tid=" + tid +
 				", name='" + name + '\'' +
 				", put_date=" + put_date +
 				", picture='" + picture + '\'' +
 				", price=" + price +
 				", intro='" + intro + '\'' +
+				", tid_1=" + tid_1 +
+				", tid_2=" + tid_2 +
+				", tid_3=" + tid_3 +
 				'}';
 	}
 }
