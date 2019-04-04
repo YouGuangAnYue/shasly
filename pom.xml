@@ -22,6 +22,7 @@
         <module>shasly-goods</module>
         <module>shasly-order</module>
         <module>shasly-sms</module>
+        <module>shasly-pay</module>
     </modules>
 
     <properties>

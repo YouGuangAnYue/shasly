@@ -8,4 +8,6 @@ public interface OrderService {
     Order createOrder(String token, List<Integer> ids, Integer aid);
 
     List<Order> getAllOrderList(String token);
+
+    List<Order> getOrderListByStatus(String token, Integer status);
 }

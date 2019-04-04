@@ -50,6 +50,7 @@ public class OrderController {
                                    @PathVariable(value = "pageSize") Integer pageSize,
                                    @PathVariable(value = "pageNum") Integer pageNum) {
         List<Order> orderList = orderService.getAllOrderList(token) ;
+        if (pageNum == null) pageNum = 1 ;
         ResultBean resultBean = PageBeanUtils.baseResultBean(orderList, pageNum, pageSize);
         return resultBean ;
     }
@@ -57,16 +58,19 @@ public class OrderController {
 
     /**
      * 查询不同状态订单的接口
-     *
-     * @param oid
      * @param status
      * @return
      */
     @CrossOrigin
-    @ResponseBody
-    @RequestMapping("/selectOrderStatus")
-    public ResultBean orderStatus(String oid, int status) {
-        return null ;
+    @GetMapping("/getorderbystatus/{status}/{pageSize}/{pageNum}")
+    public ResultBean getOrderStatus(@CookieValue String token,
+                                     @PathVariable(value = "status") Integer status,
+                                     @PathVariable("pageSize") Integer pageSize,
+                                     @PathVariable("pageNum") Integer pageNum) {
+        List<Order> orderList = orderService.getOrderListByStatus(token,status) ;
+        if (pageNum == null) pageNum = 1 ;
+        ResultBean resultBean = PageBeanUtils.baseResultBean(orderList, pageNum, pageSize);
+        return resultBean ;
     }
 
 
@@ -79,7 +83,6 @@ public class OrderController {
      * @return
      */
     @CrossOrigin
-    @ResponseBody
     @RequestMapping("/changeOrderStatus")
     public ResultBean changeOrderStatus(int uid, int status, String oid) {
 
@@ -89,7 +92,6 @@ public class OrderController {
 
     /**
      * 退款接口
-     *
      * @param gid
      * @param oid
      * @param status
