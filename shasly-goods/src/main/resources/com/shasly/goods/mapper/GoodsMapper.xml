@@ -12,6 +12,11 @@
         VALUES (#{name},#{picture},#{price},#{intro},#{tid_1},#{tid_2},#{tid_3})
     </insert>
 
+    <update id="updateGoods" parameterType="com.shasly.common.bean.Goods">
+        UPDATE goods
+        SET name=#{name},picture=#{picture},price=#{price},intro=#{intro},tid_1=#{tid_1},tid_2=#{tid_2},tid_3=#{tid_3},status=#{tatus}
+        WHERE gid=#{gid}
+    </update>
 
     <select id="findGoodsTypeByTId" resultType="com.shasly.common.bean.GoodsType">
         SELECT tid,name,level,pid
@@ -39,18 +44,23 @@
         FROM goods_type
     </select>
     <select id="findAllGoods" resultType="com.shasly.common.bean.Goods">
-        SELECT gid,name,picture,price,intro,tid_1,tid_2,tid_3
+        SELECT gid,name,picture,price,intro,tid_1,tid_2,tid_3,status
         FROM goods
     </select>
     <select id="findGoodsDetailsByGId" resultType="com.shasly.goods.vo.GoodsDetails">
         SELECT g.gid,g.name,g.price,g.picture,g.intro,g.tid_1,g.tid_2,g.tid_3,
                 e.star,e.point,e.sales_volume,e.total_collection,e.total_comment
         FROM goods AS g INNER JOIN goods_evaluate AS e ON g.gid = e.gid
-        WHERE g.gid = #{gid}
+        WHERE g.gid = #{gid} AND status=1
     </select>
     <select id="findGoodsLikeName" resultType="com.shasly.common.bean.Goods">
         SELECT gid,name,picture,price,intro,tid_1,tid_2,tid_3
         FROM goods
-        WHERE name LIKE #{name}
+        WHERE name LIKE #{name} AND status=1
+    </select>
+    <select id="findGoodsByGId" resultType="com.shasly.common.bean.Goods">
+        SELECT gid, name, picture, price, intro, tid_1, tid_2, tid_3
+        FROM goods
+        WHERE gid=#{gid} AND status=1
     </select>
 </mapper>

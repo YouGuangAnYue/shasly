@@ -24,4 +24,8 @@ public interface GoodsMapper {
     GoodsDetails findGoodsDetailsByGId(Integer gid);
 
     List<Goods> findGoodsLikeName(String name);
+
+    int updateGoods(Goods goods);
+
+    Goods findGoodsByGId(Integer gid);
 }

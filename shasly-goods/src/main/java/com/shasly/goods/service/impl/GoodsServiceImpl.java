@@ -37,6 +37,10 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Override
     public boolean removeGoodsByGId(Integer gid) {
+        Goods goods = goodsMapper.findGoodsByGId(gid) ;
+        goods.setStatus(0);
+        int len = goodsMapper.updateGoods(goods) ;
+        if (len > 0) return true ;
         return false;
     }
 

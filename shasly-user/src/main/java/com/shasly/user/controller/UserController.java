@@ -41,6 +41,10 @@ public class UserController {
 
     /**
      * 登录
+     * @param loginVo
+     * @param vcode
+     * @param response
+     * @return
      */
     @PostMapping(value = "/login")
     @CrossOrigin
@@ -82,6 +86,8 @@ public class UserController {
 
     /**
      * 注册
+     * @param registerVo
+     * @return
      */
     @PostMapping(value = "/register")
     @CrossOrigin
@@ -110,6 +116,8 @@ public class UserController {
 
     /**
      * 检查用户名是否存在
+     * @param username
+     * @return
      */
     @GetMapping(value = "/checkusername/{username}")
     @CrossOrigin

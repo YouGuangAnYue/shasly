@@ -15,12 +15,13 @@ public class Goods {
 	private Integer tid_1 ;
 	private Integer tid_2 ;
 	private Integer tid_3 ;
+	private Integer status ;
 
 	public Goods() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public Goods(Integer gid, String name, Date put_date, String picture, double price, String intro, Integer tid_1, Integer tid_2, Integer tid_3) {
+	public Goods(Integer gid, String name, Date put_date, String picture, double price, String intro, Integer tid_1, Integer tid_2, Integer tid_3, Integer status) {
 		this.gid = gid;
 		this.name = name;
 		this.put_date = put_date;
@@ -30,6 +31,15 @@ public class Goods {
 		this.tid_1 = tid_1;
 		this.tid_2 = tid_2;
 		this.tid_3 = tid_3;
+		this.status = status;
+	}
+
+	public Integer getStatus() {
+		return status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
 	}
 
 	public Integer getGid() {
@@ -116,6 +126,7 @@ public class Goods {
 				", tid_1=" + tid_1 +
 				", tid_2=" + tid_2 +
 				", tid_3=" + tid_3 +
+				", status=" + status +
 				'}';
 	}
 }
