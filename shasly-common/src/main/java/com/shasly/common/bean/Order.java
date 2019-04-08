@@ -17,94 +17,88 @@ package com.shasly.common.bean;
  *
  */
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 public class Order {
 
-	private String id;
-	private int uid;
-	private double money;
-	private String status;
-	private Date time;
-	private int aid;
+	private Integer id;
+	private String oid ;
+	private Integer uid;
+	private BigDecimal total_price ;
+	private Integer status;
+	private Long create_time;
 
-	private String address ;
-	
 	public Order() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public Order(String id, int uid, double money, String status, Date time, int aid, String address) {
+	public Order(Integer id, String oid, Integer uid, BigDecimal total_price, Integer status, Long create_time) {
 		this.id = id;
+		this.oid = oid;
 		this.uid = uid;
-		this.money = money;
+		this.total_price = total_price;
 		this.status = status;
-		this.time = time;
-		this.aid = aid;
-		this.address = address;
+		this.create_time = create_time;
 	}
 
-	public String getId() {
+	public Integer getId() {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 
-	public int getUid() {
+	public String getOid() {
+		return oid;
+	}
+
+	public void setOid(String oid) {
+		this.oid = oid;
+	}
+
+	public Integer getUid() {
 		return uid;
 	}
 
-	public void setUid(int uid) {
+	public void setUid(Integer uid) {
 		this.uid = uid;
 	}
 
-	public double getMoney() {
-		return money;
+	public BigDecimal getTotal_price() {
+		return total_price;
 	}
 
-	public void setMoney(double money) {
-		this.money = money;
+	public void setTotal_price(BigDecimal total_price) {
+		this.total_price = total_price;
 	}
 
-	public String getStatus() {
+	public Integer getStatus() {
 		return status;
 	}
 
-	public void setStatus(String status) {
+	public void setStatus(Integer status) {
 		this.status = status;
 	}
 
-	public Date getTime() {
-		return time;
+	public Long getCreate_time() {
+		return create_time;
 	}
 
-	public void setTime(Date time) {
-		this.time = time;
-	}
-
-	public int getAid() {
-		return aid;
-	}
-
-	public void setAid(int aid) {
-		this.aid = aid;
-	}
-
-	public String getAddress() {
-		return address;
-	}
-
-	public void setAddress(String address) {
-		this.address = address;
+	public void setCreate_time(Long create_time) {
+		this.create_time = create_time;
 	}
 
 	@Override
 	public String toString() {
-		return "Order [id=" + id + ", uid=" + uid + ", money=" + money + ", status=" + status + ", time=" + time
-				+ ", aid=" + aid + ", address=" + address + "]";
+		return "Order{" +
+				"id=" + id +
+				", oid='" + oid + '\'' +
+				", uid=" + uid +
+				", total_price=" + total_price +
+				", status=" + status +
+				", create_time=" + create_time +
+				'}';
 	}
-
-	
 }

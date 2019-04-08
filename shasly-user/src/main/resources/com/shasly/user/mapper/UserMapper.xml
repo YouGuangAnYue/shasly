@@ -8,7 +8,8 @@
         VALUES (#{username},#{salt},#{password},#{email},#{phone},#{status},#{role})
     </insert>
     <insert id="insertUserInfo">
-
+        INSERT INTO user_info(uid, activation_code)
+        VALUES (#{uid},#{activation_code})
     </insert>
     <update id="update" parameterType="com.shasly.common.bean.User">
         UPDATE user SET password=#{password},email=#{email},phone=#{phone},status=#{status},role=#{role}

@@ -16,3 +16,7 @@ spring:
         min-idle: 2
     #链接超时时间
     timeout: 2000
+server:
+  port: 8080
+  servlet:
+    context-path: /shasly

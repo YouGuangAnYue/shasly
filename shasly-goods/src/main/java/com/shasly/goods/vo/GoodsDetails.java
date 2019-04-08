@@ -1,5 +1,7 @@
 package com.shasly.goods.vo;
 
+import com.shasly.common.bean.GoodsType;
+
 public class GoodsDetails {
     //商品id
     private Integer gid;
@@ -12,11 +14,11 @@ public class GoodsDetails {
     //商品介绍
     private String intro;
     //一级分类id
-    private Integer tid_1;
+    private GoodsType type_1;
     //二级分类id
-    private Integer tid_2;
+    private GoodsType type_2;
     //三级分类id
-    private Integer tid_3;
+    private GoodsType type_3;
     //商品星级
     private long star;
     //商品评分
@@ -108,46 +110,27 @@ public class GoodsDetails {
         this.total_comment = total_comment;
     }
 
-    public Integer getTid_1() {
-        return tid_1;
+    public GoodsType getType_1() {
+        return type_1;
     }
 
-    public void setTid_1(Integer tid_1) {
-        this.tid_1 = tid_1;
+    public void setType_1(GoodsType type_1) {
+        this.type_1 = type_1;
     }
 
-    public Integer getTid_2() {
-        return tid_2;
+    public GoodsType getType_2() {
+        return type_2;
     }
 
-    public void setTid_2(Integer tid_2) {
-        this.tid_2 = tid_2;
+    public void setType_2(GoodsType type_2) {
+        this.type_2 = type_2;
     }
 
-    public Integer getTid_3() {
-        return tid_3;
+    public GoodsType getType_3() {
+        return type_3;
     }
 
-    public void setTid_3(Integer tid_3) {
-        this.tid_3 = tid_3;
-    }
-
-    @Override
-    public String toString() {
-        return "GoodsDetails{" +
-                "gid=" + gid +
-                ", name='" + name + '\'' +
-                ", picture='" + picture + '\'' +
-                ", price=" + price +
-                ", intro='" + intro + '\'' +
-                ", tid_1=" + tid_1 +
-                ", tid_2=" + tid_2 +
-                ", tid_3=" + tid_3 +
-                ", star=" + star +
-                ", point=" + point +
-                ", sales_volume=" + sales_volume +
-                ", total_collection=" + total_collection +
-                ", total_comment=" + total_comment +
-                '}';
+    public void setType_3(GoodsType type_3) {
+        this.type_3 = type_3;
     }
 }

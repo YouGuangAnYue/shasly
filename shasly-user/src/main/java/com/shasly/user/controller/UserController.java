@@ -6,7 +6,6 @@ import com.shasly.common.bean.ResultBean;
 import com.shasly.common.bean.User;
 import com.shasly.common.exception.UserException;
 import com.shasly.common.jedis.JedisClientPool;
-import com.shasly.common.utils.DataListUtils;
 import com.shasly.common.utils.TextUtils;
 import com.shasly.user.service.AddressService;
 import com.shasly.user.service.UserService;
@@ -41,6 +40,7 @@ public class UserController {
 
     /**
      * 登录
+     *
      * @param loginVo
      * @param vcode
      * @param response
@@ -48,7 +48,7 @@ public class UserController {
      */
     @PostMapping(value = "/login")
     @CrossOrigin
-    public ResultBean login(@RequestBody LoginVo loginVo, @CookieValue(value = "vcode") String vcode, HttpServletResponse response) {
+    public ResultBean login(@RequestBody LoginVo loginVo, @CookieValue(value = "vcode", required = false) String vcode, HttpServletResponse response) {
 
         // 用户名密码不能为空
         if (TextUtils.empty(loginVo.getUsername()) || TextUtils.empty(loginVo.getPassword())) {
@@ -86,6 +86,7 @@ public class UserController {
 
     /**
      * 注册
+     *
      * @param registerVo
      * @return
      */
@@ -98,16 +99,16 @@ public class UserController {
         String email = registerVo.getEmail();
         String phone = registerVo.getPhone();
         boolean b = false;
-        if (registerVo.getEmail() == null) {
-            String phoneCode = jedisClientPool.get(phone) ;
-            if (phoneCode == null) return new ResultBean(false, "验证码已失效", null);
-            if (!registerVo.getPhoneCode().equals(phoneCode)) {
-                return new ResultBean(false, "验证码错误", null);
-            }
-            b = userService.registerByPhone(new User(registerVo.getUsername(), registerVo.getPassword(), null, phone));
-        } else {
-            b = userService.registerByEmail(new User(registerVo.getUsername(), registerVo.getPassword(), email, null));
+//        if (registerVo.getEmail() == null) {
+        String phoneCode = jedisClientPool.get(phone);
+        if (phoneCode == null) return new ResultBean(false, "验证码已失效", null);
+        if (!registerVo.getPhoneCode().equals(phoneCode)) {
+            return new ResultBean(false, "验证码错误", null);
         }
+        b = userService.registerByPhone(new User(registerVo.getUsername(), registerVo.getPassword(), null, phone));
+        /*} else {
+            b = userService.registerByEmail(new User(registerVo.getUsername(), registerVo.getPassword(), email, null));
+        }*/
         if (b)
             return new ResultBean(true, "注册成功", null);
         else
@@ -116,6 +117,7 @@ public class UserController {
 
     /**
      * 检查用户名是否存在
+     *
      * @param username
      * @return
      */
@@ -134,6 +136,7 @@ public class UserController {
 
     /**
      * 生成图片验证码
+     *
      * @param request
      * @param response
      */
@@ -144,9 +147,11 @@ public class UserController {
         //获取vcde标记
         Cookie[] cookies = request.getCookies();
         String vcode = null;
-        for (Cookie coo : cookies) {
-            if ("vcode".equals(coo.getName())) {
-                vcode = coo.getValue();
+        if (cookies != null) {
+            for (Cookie coo : cookies) {
+                if ("vcode".equals(coo.getName())) {
+                    vcode = coo.getValue();
+                }
             }
         }
 
@@ -192,12 +197,11 @@ public class UserController {
      *
      * @param code
      * @param vcode
-     * @param response
      * @return
      */
     @GetMapping(value = "/checkcode/{code}")
     @CrossOrigin
-    public ResultBean checkCode(@PathVariable("code") String code, @CookieValue(value = "vcode") String vcode, HttpServletResponse response) {
+    public ResultBean checkCode(@PathVariable("code") String code, @CookieValue(value = "vcode", required = false) String vcode) {
         //判断vcode标记
         if (vcode == null) {
             return new ResultBean(false, "验证码已过期", null);
@@ -215,7 +219,7 @@ public class UserController {
      */
     @GetMapping(value = "/logout")
     @CrossOrigin
-    public ResultBean logOut(@CookieValue(value = "token") String token, HttpServletResponse response) {
+    public ResultBean logOut(@CookieValue(value = "token", required = false) String token, HttpServletResponse response) {
 
         if (token != null) {
             Cookie cookie = new Cookie("token", token);
@@ -233,7 +237,7 @@ public class UserController {
      */
     @PostMapping(value = "/addaddress")
     @CrossOrigin
-    public void addAddress(@RequestBody Address address, @CookieValue(value = "token") String token) {
+    public void addAddress(@RequestBody Address address, @CookieValue(value = "token", required = false) String token) {
         String uid = jedisClientPool.get(token);
         address.setUid(Integer.parseInt(uid));
         addressService.add(address);
@@ -246,7 +250,7 @@ public class UserController {
      */
     @GetMapping(value = "/getaddress")
     @CrossOrigin
-    public ResultBean getAddress(@CookieValue(value = "token") String token) {
+    public ResultBean getAddress(@CookieValue(value = "token", required = false) String token) {
         String uid = jedisClientPool.get(token);
         // 查看地址
         try {
@@ -262,7 +266,7 @@ public class UserController {
      */
     @GetMapping(value = "/defaultAddress/{aid}")
     @CrossOrigin
-    public ResultBean defaultAddress(@PathVariable(value = "aid") Integer aid, @CookieValue(value = "token") String token) {
+    public ResultBean defaultAddress(@PathVariable(value = "aid") Integer aid, @CookieValue(value = "token", required = false) String token) {
         String uid = jedisClientPool.get(token);
         // 取得所有地址
         List<Address> addList = addressService.findAddressByUId(uid);
@@ -285,7 +289,7 @@ public class UserController {
      * 删除地址
      */
     @GetMapping(value = "/deleteaddress/{aid}")
-    public ResultBean deleteAddress(@PathVariable(value = "aid") Integer aid, @CookieValue(value = "token") String token) {
+    public ResultBean deleteAddress(@PathVariable(value = "aid") Integer aid, @CookieValue(value = "token", required = false) String token) {
         String uid = jedisClientPool.get(token);
         boolean b = addressService.deleteByUIdAndAId(aid, uid);
         if (b)
@@ -299,7 +303,7 @@ public class UserController {
      */
     @PostMapping(value = "/updateaddress")
     @CrossOrigin
-    public ResultBean updateAddress(@CookieValue(value = "token") String token,@RequestBody Address address) {
+    public ResultBean updateAddress(@CookieValue(value = "token", required = false) String token, @RequestBody Address address) {
         String uid = jedisClientPool.get(token);
         address.setUid(Integer.parseInt(uid));
         boolean b = addressService.update(address);

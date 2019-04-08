@@ -3,6 +3,7 @@ package com.shasly.common.bean;
  * 商品
  */
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 public class Goods {
@@ -10,7 +11,7 @@ public class Goods {
 	private String name;
 	private Date put_date;
 	private String picture;
-	private double price;
+	private BigDecimal price;
 	private String intro;
 	private Integer tid_1 ;
 	private Integer tid_2 ;
@@ -21,7 +22,7 @@ public class Goods {
 		// TODO Auto-generated constructor stub
 	}
 
-	public Goods(Integer gid, String name, Date put_date, String picture, double price, String intro, Integer tid_1, Integer tid_2, Integer tid_3, Integer status) {
+	public Goods(Integer gid, String name, Date put_date, String picture, BigDecimal price, String intro, Integer tid_1, Integer tid_2, Integer tid_3, Integer status) {
 		this.gid = gid;
 		this.name = name;
 		this.put_date = put_date;
@@ -74,11 +75,11 @@ public class Goods {
 		this.picture = picture;
 	}
 
-	public double getPrice() {
+	public BigDecimal getPrice() {
 		return price;
 	}
 
-	public void setPrice(double price) {
+	public void setPrice(BigDecimal price) {
 		this.price = price;
 	}
 

@@ -1,5 +1,8 @@
 package com.shasly.common.bean;
 
+/**
+ * 商品评价
+ */
 public class GoodsEvaluate {
 
   private long id;

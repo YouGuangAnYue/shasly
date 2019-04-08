@@ -37,7 +37,7 @@ public class PayController {
         String p7_Pdesc = "shasly";
         // 支付成功回调地址 ---- 第三方支付公司会访问、用户访问
         // 第三方支付可以访问网址
-        String p8_Url = "http://localhost:8080/shasly/order/callbackorder";
+        String p8_Url = "http://localhost:8080/shasly/order/callbackorder/" + oid;
         String p9_SAF = "";
         String pa_MP = "";
         String pr_NeedResponse = "1";

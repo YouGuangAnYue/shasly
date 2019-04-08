@@ -72,7 +72,7 @@ public class CartController {
      */
     @GetMapping("/getcart/{pageSize}/{pageNum}")
     @CrossOrigin
-    public ResultBean getCart(@CookieValue(value = "token") String token,
+    public ResultBean getCart(@CookieValue(value = "token", required = false) String token,
                               @PathVariable(value = "pageSize") Integer pageSize,
                               @PathVariable(value = "pageNum") Integer pageNum) {
 
@@ -89,7 +89,7 @@ public class CartController {
      */
     @GetMapping("/changecartdetail/{gid}/{number}")
     @CrossOrigin
-    public ResultBean changeCartDetail(@CookieValue(value = "token") String token,
+    public ResultBean changeCartDetail(@CookieValue(value = "token", required = false) String token,
                                        @PathVariable(value = "gid") Integer gid,
                                        @PathVariable(value = "number") Integer number) {
         boolean b = cartService.updateCartDetailNumber(token,gid,number) ;
@@ -105,12 +105,11 @@ public class CartController {
      */
     @GetMapping("/clearcart")
     @CrossOrigin
-    public ResultBean clearCart(@CookieValue(value = "token") String token) {
+    public ResultBean clearCart(@CookieValue(value = "token", required = false) String token) {
         boolean b = cartService.clearCart(token) ;
         if (b) return new ResultBean(true,"清空购物车成功",null) ;
 
         return new ResultBean(false,"清空购物车失败",null) ;
     }
-
 
 }

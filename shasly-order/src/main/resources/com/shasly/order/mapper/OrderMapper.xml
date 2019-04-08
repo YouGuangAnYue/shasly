@@ -4,5 +4,43 @@
 
 <mapper namespace="com.shasly.order.mapper.OrderMapper">
 
+    <resultMap id="carlist" type="com.shasly.common.bean.CartList">
+        <id property="id" column="cart_id" />
+        <result property="number" column="cart_number"/>
+        <result property="param" column="cart_param" />
+        <association property="goods" column="cart_gid" javaType="com.shasly.common.bean.Goods">
+            <id property="gid" column="goods_gid" />
+            <result property="name" column="goods_name" />
+            <result property="picture" column="goods_picture" />
+            <result property="price" column="goods_price" />
+            <result property="intro" column="goods_intro" />
+        </association>
+    </resultMap>
 
+    <insert id="createOrder" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO `order`(oid, uid, total_price)
+        VALUES (#{oid},#{uid},#{total_price})
+    </insert>
+    <insert id="createOrderDetail">
+        INSERT INTO order_detail(order_id, aid, gid, goods_number, goods_param)
+        VALUES (#{order_id},#{aid},#{gid},#{goods_number},#{goods_param})
+    </insert>
+
+    <select id="findCartDetailByIds" resultMap="carlist">
+        SELECT
+        c.id cart_id,
+        c.number cart_number,
+        c.param cart_param,
+        c.gid cart_gid,
+        g.gid goods_gid,
+        g.name goods_name,
+        g.picture goods_picture,
+        g.price goods_price,
+        g.intro goods_intro
+        FROM cart_detail AS c INNER JOIN goods g ON c.gid = g.gid
+        WHERE c.id IN
+        <foreach item="id" index="index" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

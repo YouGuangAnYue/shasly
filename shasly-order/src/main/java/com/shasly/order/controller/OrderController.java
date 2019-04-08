@@ -1,8 +1,6 @@
 package com.shasly.order.controller;
 
-import com.shasly.common.bean.Order;
-import com.shasly.common.bean.ResultBean;
-import com.shasly.common.bean.User;
+import com.shasly.common.bean.*;
 import com.shasly.common.utils.PageBeanUtils;
 import com.shasly.order.service.OrderService;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +17,23 @@ public class OrderController {
     }
 
     /**
+     * 确认订单
+     * @param token
+     * @param ids 购物车详情id集合
+     * @return
+     */
+    @CrossOrigin
+    @PostMapping("/submitorder")
+    public ResultBean submitOrder(@CookieValue(value = "token", required = false) String token,
+                                  @RequestParam(value = "ids") List<Integer> ids) {
+        List<CartList> cartList = orderService.verifyOrder(token, ids);
+        if (cartList != null)
+            return new ResultBean(true, "请确认订单", cartList);
+        else
+            return new ResultBean(false, "请求失败", null);
+    }
+
+    /**
      * 提交用户订单
      * @param token
      * @param ids 购物车详情id集合
@@ -27,7 +42,7 @@ public class OrderController {
      */
     @CrossOrigin
     @PostMapping("/submitorder")
-    public ResultBean submitOrder(@CookieValue(value = "token") String token,
+    public ResultBean submitOrder(@CookieValue(value = "token", required = false) String token,
                                   @RequestParam(value = "ids") List<Integer> ids,
                                   @RequestParam(value = "aid") Integer aid) {
         Order order = orderService.createOrder(token, ids, aid);
@@ -46,7 +61,7 @@ public class OrderController {
      */
     @CrossOrigin
     @GetMapping("/getorderlist/{pageSize}/{pageNum}")
-    public ResultBean getOrderList(@CookieValue(value = "token") String token,
+    public ResultBean getOrderList(@CookieValue(value = "token", required = false) String token,
                                    @PathVariable(value = "pageSize") Integer pageSize,
                                    @PathVariable(value = "pageNum") Integer pageNum) {
         List<Order> orderList = orderService.getAllOrderList(token) ;
@@ -55,15 +70,14 @@ public class OrderController {
         return resultBean ;
     }
 
-
     /**
-     * 查询不同状态订单的接口
+     * 查询不同状态的订单
      * @param status
      * @return
      */
     @CrossOrigin
     @GetMapping("/getorderbystatus/{status}/{pageSize}/{pageNum}")
-    public ResultBean getOrderStatus(@CookieValue String token,
+    public ResultBean getOrderStatus(@CookieValue(value = "token", required = false) String token,
                                      @PathVariable(value = "status") Integer status,
                                      @PathVariable("pageSize") Integer pageSize,
                                      @PathVariable("pageNum") Integer pageNum) {
@@ -73,22 +87,32 @@ public class OrderController {
         return resultBean ;
     }
 
-
     /**
      * 更新订单状态
-     *
-     * @param uid
      * @param status
      * @param oid
      * @return
      */
     @CrossOrigin
-    @RequestMapping("/changeOrderStatus")
-    public ResultBean changeOrderStatus(int uid, int status, String oid) {
-
-        return null ;
+    @PostMapping("/changestatus")
+    public ResultBean changeOrderStatus(@CookieValue(value = "token", required = false) String token,
+                                        @RequestParam(value = "oid") String oid,
+                                        @RequestParam(value = "status") Integer status) {
+        boolean b = orderService.updateOrderStruts(token, oid, status);
+        if (b) return new ResultBean(true,"更改成功",null) ;
+        return new ResultBean(false,"更改失败",null) ;
     }
 
+
+    /**
+     * 支付成功回调接口
+     * @param oid
+     */
+    @CrossOrigin
+    @GetMapping("/callbackorder/{oid}")
+    public void callbackOrder(@PathVariable(value = "oid") String oid){
+        orderService.updateOrderStruts(null,oid,1) ;
+    }
 
     /**
      * 退款接口

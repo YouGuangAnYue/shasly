@@ -2,6 +2,7 @@ package com.shasly.goods.mapper;
 
 import com.shasly.common.bean.Goods;
 import com.shasly.common.bean.GoodsType;
+import com.shasly.common.bean.User;
 import com.shasly.goods.vo.GoodsDetails;
 import org.apache.ibatis.annotations.Param;
 
@@ -28,4 +29,6 @@ public interface GoodsMapper {
     int updateGoods(Goods goods);
 
     Goods findGoodsByGId(Integer gid);
+
+    User findUserByUId(int uid);
 }

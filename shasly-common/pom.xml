@@ -68,5 +68,17 @@
         </dependency>
 
     </dependencies>
+    <repositories>
+        <repository>
+            <id>central</id>
+            <url>http://localhost:8081/content/groups/public</url>
+        </repository>
+    </repositories>
 
+    <pluginRepositories>
+        <pluginRepository>
+            <id>central</id>
+            <url>http://localhost:8081/content/groups/public</url>
+        </pluginRepository>
+    </pluginRepositories>
 </project>

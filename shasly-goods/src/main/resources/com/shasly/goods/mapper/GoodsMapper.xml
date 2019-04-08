@@ -48,9 +48,8 @@
         FROM goods
     </select>
     <select id="findGoodsDetailsByGId" resultType="com.shasly.goods.vo.GoodsDetails">
-        SELECT g.gid,g.name,g.price,g.picture,g.intro,g.tid_1,g.tid_2,g.tid_3,
-                e.star,e.point,e.sales_volume,e.total_collection,e.total_comment
-        FROM goods AS g INNER JOIN goods_evaluate AS e ON g.gid = e.gid
+        SELECT g.gid,g.name,g.price,g.picture,g.intro,e.star,e.point,e.sales_volume,e.total_collection,e.total_comment
+        FROM goods AS g LEFT JOIN goods_evaluate AS e ON g.gid = e.gid
         WHERE g.gid = #{gid} AND status=1
     </select>
     <select id="findGoodsLikeName" resultType="com.shasly.common.bean.Goods">
@@ -62,5 +61,10 @@
         SELECT gid, name, picture, price, intro, tid_1, tid_2, tid_3
         FROM goods
         WHERE gid=#{gid} AND status=1
+    </select>
+    <select id="findUserByUId" resultType="com.shasly.common.bean.User">
+        SELECT uid,username,email,phone,status,role
+        FROM user
+        WHERE uid = #{uid}
     </select>
 </mapper>

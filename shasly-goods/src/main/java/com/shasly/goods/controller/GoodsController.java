@@ -7,6 +7,7 @@ import com.shasly.common.jedis.JedisClientPool;
 import com.shasly.common.utils.PageBeanUtils;
 import com.shasly.goods.service.GoodsService;
 import com.shasly.goods.vo.GoodsDetails;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +26,7 @@ public class GoodsController {
 
     /**
      * 根据商品类型，分页显示商品
+     *
      * @param tid
      * @param pageSize
      * @param pageNum
@@ -37,7 +39,9 @@ public class GoodsController {
                                         @PathVariable(value = "pageNum") Integer pageNum) {
 
         if (tid == null) return new ResultBean(false, "商品类型不能为空", null);
-        List<Goods> goodsList = goodsService.findGoodsByTId(tid);
+        if (pageSize == null) pageSize = PageBeanUtils.pageSize ;
+        if (pageNum == null) pageNum = 1 ;
+        List<Goods> goodsList = goodsService.findGoodsByTId(tid,pageSize,pageNum);
         ResultBean resultBean = PageBeanUtils.goodsResultBean(goodsList, pageNum, pageSize);
         return resultBean;
     }
@@ -45,13 +49,16 @@ public class GoodsController {
     @GetMapping(value = "/getallgoodslist/{pageSize}/{pageNum}")
     @CrossOrigin
     public ResultBean getAllGoodsList(@PathVariable(value = "pageSize") Integer pageSize,
-                                      @PathVariable(value = "pageNum") Integer pageNum){
-        List<Goods> allGoodsList = goodsService.findAllGoods();
-        return PageBeanUtils.goodsResultBean(allGoodsList,pageNum,pageSize) ;
+                                      @PathVariable(value = "pageNum") Integer pageNum) {
+        if (pageSize == null) pageSize = PageBeanUtils.pageSize ;
+        if (pageNum == null) pageNum = 1 ;
+        List<Goods> allGoodsList = goodsService.findAllGoods(pageSize,pageNum);
+        return PageBeanUtils.goodsResultBean(allGoodsList, pageNum, pageSize);
     }
 
     /**
      * 显示特定id的商品
+     *
      * @param gid
      * @return
      */
@@ -69,6 +76,7 @@ public class GoodsController {
 
     /**
      * 商品查询
+     *
      * @param name
      * @param pageSize
      * @param pageNum
@@ -79,14 +87,15 @@ public class GoodsController {
     public ResultBean goodsSearch(@PathVariable(value = "name") String name,
                                   @PathVariable(value = "pageSize") Integer pageSize,
                                   @PathVariable(value = "pageNum") Integer pageNum) {
-
-        List<Goods> goodsList = goodsService.searchGoodsByName(name);
-
-        return PageBeanUtils.goodsResultBean(goodsList,pageNum,pageSize);
+        if (pageSize == null) pageSize = PageBeanUtils.pageSize ;
+        if (pageNum == null) pageNum = 1 ;
+        List<Goods> goodsList = goodsService.searchGoodsByName(name,pageSize,pageNum);
+        return PageBeanUtils.goodsResultBean(goodsList, pageNum, pageSize);
     }
 
     /**
      * 获取商品分类列表
+     *
      * @return
      */
     @GetMapping(value = "/getgoodstypelist")
@@ -96,5 +105,31 @@ public class GoodsController {
         if (types != null && types.size() > 0)
             return new ResultBean(true, "获取商品分类列表成功", types);
         return new ResultBean(false, "获取商品分类列表失败", null);
+    }
+
+    /**
+     * 添加商品类型
+     * @param goodsType
+     * @return
+     */
+    @PostMapping(value = "/addgoodstype")
+    @CrossOrigin
+    public ResultBean addGoodsType(@CookieValue(value = "token", required = false) String token,
+                                   @RequestBody GoodsType goodsType) {
+        boolean b = goodsService.addGoodsType(token, goodsType);
+        if (b)
+            return new ResultBean(true, "添加成功", null);
+        else
+            return new ResultBean(false, "添加失败", null);
+    }
+
+    @PostMapping(value = "/addgoods")
+    @CrossOrigin
+    public ResultBean addGoods(@CookieValue(value = "token", required = false) String token, @RequestBody Goods goods) {
+        boolean b = goodsService.addGoods(token, goods);
+        if (b)
+            return new ResultBean(true, "添加商品成功", null);
+        else
+            return new ResultBean(false, "添加商品失败", null);
     }
 }

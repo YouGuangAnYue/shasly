@@ -1,68 +1,63 @@
 package com.shasly.common.bean;
 
+import com.shasly.common.bean.Address;
+import com.shasly.common.bean.Goods;
+
 public class OrderDetail {
-	private int id;
-	private String oid;
-	private int pid;
-	private int num;
-	private double money;
 
-	public OrderDetail() {
-		// TODO Auto-generated constructor stub
-	}
+  private Integer id;
+  private Integer order_id;
+  private Integer aid ;
+  private Integer gid ;
+  private Integer goodsNumber;
+  private String goodsParam;
 
-	public OrderDetail(int id, String oid, int pid, int num, double money) {
-		super();
-		this.id = id;
-		this.oid = oid;
-		this.pid = pid;
-		this.num = num;
-		this.money = money;
-	}
 
-	public int getId() {
-		return id;
-	}
+  public Integer getId() {
+    return id;
+  }
 
-	public void setId(int id) {
-		this.id = id;
-	}
+  public void setId(Integer id) {
+    this.id = id;
+  }
 
-	public String getOid() {
-		return oid;
-	}
+  public Integer getOrder_id() {
+    return order_id;
+  }
 
-	public void setOid(String oid) {
-		this.oid = oid;
-	}
+  public void setOrder_id(Integer order_id) {
+    this.order_id = order_id;
+  }
 
-	public int getPid() {
-		return pid;
-	}
+  public Integer getAid() {
+    return aid;
+  }
 
-	public void setPid(int pid) {
-		this.pid = pid;
-	}
+  public void setAid(Integer aid) {
+    this.aid = aid;
+  }
 
-	public int getNum() {
-		return num;
-	}
+  public Integer getGid() {
+    return gid;
+  }
 
-	public void setNum(int num) {
-		this.num = num;
-	}
+  public void setGid(Integer gid) {
+    this.gid = gid;
+  }
 
-	public double getMoney() {
-		return money;
-	}
+  public Integer getGoodsNumber() {
+    return goodsNumber;
+  }
 
-	public void setMoney(double money) {
-		this.money = money;
-	}
+  public void setGoodsNumber(Integer goodsNumber) {
+    this.goodsNumber = goodsNumber;
+  }
 
-	@Override
-	public String toString() {
-		return "OrderDetail [id=" + id + ", oid=" + oid + ", pid=" + pid + ", num=" + num + ", money=" + money + "]";
-	}
+  public String getGoodsParam() {
+    return goodsParam;
+  }
 
+  public void setGoodsParam(String goodsParam) {
+    this.goodsParam = goodsParam;
+  }
 }
