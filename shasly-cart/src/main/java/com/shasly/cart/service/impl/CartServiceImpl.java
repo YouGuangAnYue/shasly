@@ -27,11 +27,13 @@ package com.shasly.cart.service.impl;/*
  *
  */
 
+import com.github.pagehelper.PageHelper;
 import com.shasly.cart.mapper.CartMapper;
 import com.shasly.cart.service.CartService;
 import com.shasly.common.bean.CartDetail;
 import com.shasly.common.bean.CartList;
 import com.shasly.common.jedis.JedisClientPool;
+import com.shasly.common.utils.PageBeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -100,8 +102,11 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public List<CartList> findCartListByToken(String token) {
+    public List<CartList> findCartListByToken(String token,Integer pageSize,Integer pageNum) {
         String cid = getCId(token) ;
+        if (pageSize == null) pageSize = PageBeanUtils.pageSize ;
+        if (pageNum == null) pageNum = 1 ;
+        PageHelper.startPage(pageNum, pageSize);
         List<CartList> list = cartMapper.getCartListByCid(Integer.parseInt(cid));
         return list;
     }

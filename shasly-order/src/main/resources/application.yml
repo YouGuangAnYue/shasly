@@ -30,3 +30,7 @@ pagehelper:
   params: count=countsql
   reasonable: true
   support-methods-arguments: true
+server:
+  port: 8080
+  servlet:
+    context-path: /shasly

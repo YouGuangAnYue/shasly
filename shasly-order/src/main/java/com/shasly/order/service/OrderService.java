@@ -2,7 +2,6 @@ package com.shasly.order.service;
 
 import com.shasly.common.bean.CartList;
 import com.shasly.common.bean.Order;
-import com.shasly.common.bean.OrderDetailList;
 
 import java.util.List;
 

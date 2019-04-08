@@ -34,7 +34,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController("/cart")
+@RestController
+@RequestMapping(value = "/cart")
 public class CartController {
 
     private final CartService cartService;
@@ -53,8 +54,9 @@ public class CartController {
     @PostMapping(value = "/addcart")
     @CrossOrigin
     public ResultBean addCart(@RequestBody() CartDetail cartDetail,
-                              @CookieValue("token") String token) {
+                              @CookieValue(value = "token", required = false) String token) {
 
+        if (token == null) return new ResultBean(false,"登录失效",null );
         boolean b = cartService.insertCartDetail(token,cartDetail) ;
         if (b) return new ResultBean(true,"添加商品到购物车成功",null) ;
 
@@ -76,7 +78,8 @@ public class CartController {
                               @PathVariable(value = "pageSize") Integer pageSize,
                               @PathVariable(value = "pageNum") Integer pageNum) {
 
-        List<CartList> lists =  cartService.findCartListByToken(token) ;
+        if (token == null) return new ResultBean(false,"登录失效",null );
+        List<CartList> lists =  cartService.findCartListByToken(token,pageSize,pageNum) ;
         return PageBeanUtils.baseResultBean(lists,pageNum,pageSize) ;
     }
 
@@ -92,6 +95,8 @@ public class CartController {
     public ResultBean changeCartDetail(@CookieValue(value = "token", required = false) String token,
                                        @PathVariable(value = "gid") Integer gid,
                                        @PathVariable(value = "number") Integer number) {
+
+        if (token == null) return new ResultBean(false,"登录失效",null );
         boolean b = cartService.updateCartDetailNumber(token,gid,number) ;
         if (b) return new ResultBean(true,"修改数量成功",null) ;
 
@@ -106,6 +111,8 @@ public class CartController {
     @GetMapping("/clearcart")
     @CrossOrigin
     public ResultBean clearCart(@CookieValue(value = "token", required = false) String token) {
+
+        if (token == null) return new ResultBean(false,"登录失效",null );
         boolean b = cartService.clearCart(token) ;
         if (b) return new ResultBean(true,"清空购物车成功",null) ;
 

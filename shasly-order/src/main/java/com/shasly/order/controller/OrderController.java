@@ -45,6 +45,7 @@ public class OrderController {
     public ResultBean submitOrder(@CookieValue(value = "token", required = false) String token,
                                   @RequestParam(value = "ids") List<Integer> ids,
                                   @RequestParam(value = "aid") Integer aid) {
+        if (token == null) return new ResultBean(false,"登录失效",null) ;
         Order order = orderService.createOrder(token, ids, aid);
         if (order != null)
             return new ResultBean(true, "提交订单成功", order);
@@ -64,6 +65,7 @@ public class OrderController {
     public ResultBean getOrderList(@CookieValue(value = "token", required = false) String token,
                                    @PathVariable(value = "pageSize") Integer pageSize,
                                    @PathVariable(value = "pageNum") Integer pageNum) {
+        if (token == null) return new ResultBean(false,"登录失效",null) ;
         List<Order> orderList = orderService.getAllOrderList(token) ;
         if (pageNum == null) pageNum = 1 ;
         ResultBean resultBean = PageBeanUtils.baseResultBean(orderList, pageNum, pageSize);
@@ -81,6 +83,7 @@ public class OrderController {
                                      @PathVariable(value = "status") Integer status,
                                      @PathVariable("pageSize") Integer pageSize,
                                      @PathVariable("pageNum") Integer pageNum) {
+        if (token == null) return new ResultBean(false,"登录失效",null) ;
         List<Order> orderList = orderService.getOrderListByStatus(token,status) ;
         if (pageNum == null) pageNum = 1 ;
         ResultBean resultBean = PageBeanUtils.baseResultBean(orderList, pageNum, pageSize);
@@ -98,6 +101,7 @@ public class OrderController {
     public ResultBean changeOrderStatus(@CookieValue(value = "token", required = false) String token,
                                         @RequestParam(value = "oid") String oid,
                                         @RequestParam(value = "status") Integer status) {
+        if (token == null) return new ResultBean(false,"登录失效",null) ;
         boolean b = orderService.updateOrderStruts(token, oid, status);
         if (b) return new ResultBean(true,"更改成功",null) ;
         return new ResultBean(false,"更改失败",null) ;

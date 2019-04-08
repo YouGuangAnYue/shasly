@@ -22,7 +22,7 @@ public interface CartService {
 
     boolean insertCartDetail(String token,CartDetail cartDetail);
 
-    List<CartList> findCartListByToken(String token);
+    List<CartList> findCartListByToken(String token,Integer pageSize, Integer pageNum);
 
     boolean updateCartDetailNumber(String token,Integer gid ,Integer number);
 

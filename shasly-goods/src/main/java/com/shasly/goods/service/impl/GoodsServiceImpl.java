@@ -30,22 +30,6 @@ public class GoodsServiceImpl implements GoodsService {
         return goodsMapper.findAllGoods();
     }
 
-    /*@Override
-    public GoodsDetails findGoodsByGId(Integer gid) {
-
-        GoodsDetails goodsDetails = goodsMapper.findGoodsDetailsByGId(gid);
-        Goods goods = goodsMapper.findGoodsByGId(gid);
-        if (goods == null) return null ;
-        GoodsType type_1 = goodsMapper.findGoodsTypeByTId(goods.getTid_1()) ;
-        GoodsType type_2 = goodsMapper.findGoodsTypeByTId(goods.getTid_2()) ;
-        GoodsType type_3 = goodsMapper.findGoodsTypeByTId(goods.getTid_3()) ;
-        goodsDetails.setType_1(type_1);
-        goodsDetails.setType_1(type_2);
-        goodsDetails.setType_1(type_3);
-
-        return goodsDetails ;
-    }*/
-
     @Override
     public GoodsDetails findGoodsByGId(Integer gid) {
 

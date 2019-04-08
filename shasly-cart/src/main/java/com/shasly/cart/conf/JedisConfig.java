@@ -11,7 +11,7 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
 @Configuration
-public class JedisConfig extends CachingConfigurerSupport {
+public class JedisConfig extends CachingConfigurerSupport{
     private Logger logger = LoggerFactory.getLogger(JedisConfig.class);
 
     @Value("${spring.redis.host}")
@@ -23,16 +23,16 @@ public class JedisConfig extends CachingConfigurerSupport {
     @Value("${spring.redis.timeout}")
     private int timeout;
 
-    @Value("${spring.redis.pool.max-active}")
+    @Value("${spring.redis.jedis.pool.max-active}")
     private int maxActive;
 
-    @Value("${spring.redis.pool.max-idle}")
+    @Value("${spring.redis.jedis.pool.max-idle}")
     private int maxIdle;
 
-    @Value("${spring.redis.pool.min-idle}")
+    @Value("${spring.redis.jedis.pool.min-idle}")
     private int minIdle;
 
-    @Value("${spring.redis.pool.max-wait}")
+    @Value("${spring.redis.jedis.pool.max-wait}")
     private long maxWaitMillis;
 
 

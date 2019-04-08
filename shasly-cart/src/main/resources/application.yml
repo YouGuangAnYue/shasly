@@ -31,3 +31,7 @@ pagehelper:
   #超过最后一页后是否继续返回最后一页数据
   reasonable: false
   support-methods-arguments: true
+server:
+  port: 8080
+  servlet:
+    context-path: /shasly
