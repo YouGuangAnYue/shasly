@@ -55,6 +55,8 @@ public class UserController {
         if (TextUtils.empty(loginVo.getUsername()) || TextUtils.empty(loginVo.getPassword())) {
             return new ResultBean(false, "用户名或密码为空", null);
         }
+        //验证码不能为空
+        if (vcode == null) return new ResultBean(false,"验证码不能为空",null) ;
         // 检验验证码
         if (vcode == null || !jedisClientPool.get(vcode).equals(loginVo.getVcode())) {
             return new ResultBean(false, "验证码错误", null);
@@ -74,7 +76,7 @@ public class UserController {
             if (loginVo.getAuto() != null) {
                 time = 14 * 24 * 60 * 60;
             } else {
-                time = 30 * 60;
+                time = 9 * 60 * 60 ;
             }
             cookie.setMaxAge(time);
             jedisClientPool.setex(token, "" + user.getUid(), time);
@@ -88,7 +90,6 @@ public class UserController {
 
     /**
      * 注册
-     *
      * @param registerVo
      * @return
      */
@@ -167,12 +168,12 @@ public class UserController {
                 vcode = TextUtils.getString(64);
                 Cookie cookie = new Cookie("vcode", vcode);
                 //保存10分钟
-                cookie.setMaxAge(10 * 60);
+                cookie.setMaxAge(8 * 60 * 60 + 10 * 60);
                 cookie.setHttpOnly(true);
                 response.addCookie(cookie);
             }
             //写入redis缓存当中
-            jedisClientPool.setex(vcode, createText, 5 * 60);
+            jedisClientPool.setex(vcode, createText, 10 * 60);
             // 使用生产的验证码字符串返回一个BufferedImage对象并转为byte写入到byte数组中
             BufferedImage challenge = defaultKaptcha.createImage(createText);
             ImageIO.write(challenge, "jpg", jpegOutputStream);
@@ -183,6 +184,7 @@ public class UserController {
 
         // 定义response输出类型为image/jpeg类型，使用response输出流输出图片的byte数组
         captchaChallengeAsJpeg = jpegOutputStream.toByteArray();
+
         response.setHeader("Cache-Control", "no-store");
         response.setHeader("Pragma", "no-cache");
         response.setDateHeader("Expires", 0);
@@ -203,7 +205,9 @@ public class UserController {
      */
     @GetMapping(value = "/checkcode/{code}")
     @CrossOrigin
-    public ResultBean checkCode(@PathVariable("code") String code, @CookieValue(value = "vcode", required = false) String vcode) {
+    public ResultBean checkCode(@CookieValue(value = "vcode", required = false) String vcode,
+                                @PathVariable("code") String code) {
+
         //判断vcode标记
         if (vcode == null) {
             return new ResultBean(false, "验证码已过期", null);
