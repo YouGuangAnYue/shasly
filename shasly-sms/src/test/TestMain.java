@@ -12,4 +12,18 @@ public class TestMain {
         System.out.println(jedis.get("111"));
         jedis.close();
     }
+
+    @Test
+    public void errTest(){
+        try{
+            err();
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+
+    }
+
+    public void err(){
+        throw new RuntimeException("我报错了") ;
+    }
 }
