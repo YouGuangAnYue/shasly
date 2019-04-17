@@ -1,36 +1,32 @@
 package com.shasly.common.bean;
 
-import java.sql.Timestamp;
-
 public class UserInfo {
 
-  private long id;
-  private long uid;
+  private Integer id;
+  private Integer uid;
   private String nickname;
   private String profile;
   private String name;
   private String gender;
   private String ID_number;
-  private java.sql.Timestamp birthday;
+  private Long birthday;
   private String activation_code;
 
-  public long getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(long id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 
-
-  public long getUid() {
+  public Integer getUid() {
     return uid;
   }
 
-  public void setUid(long uid) {
+  public void setUid(Integer uid) {
     this.uid = uid;
   }
-
 
   public String getNickname() {
     return nickname;
@@ -40,7 +36,6 @@ public class UserInfo {
     this.nickname = nickname;
   }
 
-
   public String getProfile() {
     return profile;
   }
@@ -49,7 +44,6 @@ public class UserInfo {
     this.profile = profile;
   }
 
-
   public String getName() {
     return name;
   }
@@ -57,7 +51,6 @@ public class UserInfo {
   public void setName(String name) {
     this.name = name;
   }
-
 
   public String getGender() {
     return gender;
@@ -75,11 +68,11 @@ public class UserInfo {
     this.ID_number = ID_number;
   }
 
-  public Timestamp getBirthday() {
+  public Long getBirthday() {
     return birthday;
   }
 
-  public void setBirthday(Timestamp birthday) {
+  public void setBirthday(Long birthday) {
     this.birthday = birthday;
   }
 

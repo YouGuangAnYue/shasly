@@ -80,6 +80,9 @@ public class UserServiceImpl implements UserService {
         //生成激活码
         String activation_code = ActiveUtils.activeCode();
         userInfo.setActivation_code(activation_code);
+        //设置默认信息
+        userInfo.setNickname(user.getUsername());
+        userInfo.setNickname("http://bpic.588ku.com/element_origin_min_pic/19/03/07/e1ae437b6f6d004b1ee409bbb4196d05.jpg");
         //存入数据库
         int n = userMapper.insertUserInfo(userInfo);
         if (n <= 0) return false;
@@ -103,16 +106,17 @@ public class UserServiceImpl implements UserService {
         //设置用户未激活
         user.setStatus(1);
         //添加用户
-        Integer uid = userMapper.insertUser(user);
+        userMapper.insertUser(user);
+        Integer uid = user.getUid() ;
 
         if (uid == null || uid.intValue() < 0) return false;
 
         //设置用户信息
         UserInfo userInfo = new UserInfo();
         userInfo.setUid(uid);
-        //生成激活码
-        String activation_code = ActiveUtils.activeCode();
-        userInfo.setActivation_code(activation_code);
+        //设置默认信息
+        userInfo.setNickname(user.getUsername());
+        userInfo.setProfile("http://bpic.588ku.com/element_origin_min_pic/19/03/07/e1ae437b6f6d004b1ee409bbb4196d05.jpg");
         //存入数据库
         int n = userMapper.insertUserInfo(userInfo);
         if (n <= 0)
@@ -155,6 +159,11 @@ public class UserServiceImpl implements UserService {
         }
         return false;
 
+    }
+
+    @Override
+    public UserInfo findUserInfoByUId(int uid) {
+        return userMapper.findUserInfoByUId(uid);
     }
 
 }

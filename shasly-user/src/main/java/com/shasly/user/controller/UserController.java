@@ -4,6 +4,7 @@ import com.google.code.kaptcha.impl.DefaultKaptcha;
 import com.shasly.common.bean.Address;
 import com.shasly.common.bean.ResultBean;
 import com.shasly.common.bean.User;
+import com.shasly.common.bean.UserInfo;
 import com.shasly.common.exception.UserException;
 import com.shasly.common.jedis.JedisClientPool;
 import com.shasly.common.utils.TextUtils;
@@ -55,7 +56,7 @@ public class UserController {
             return new ResultBean(false, "用户名或密码为空", null);
         }
         // 检验验证码
-        if (!jedisClientPool.get(vcode).equals(loginVo.getVcode())) {
+        if (vcode == null || !jedisClientPool.get(vcode).equals(loginVo.getVcode())) {
             return new ResultBean(false, "验证码错误", null);
         }
         // 查询用户是否存在
@@ -66,6 +67,7 @@ public class UserController {
             return new ResultBean(false, e.getMessage(), null);
         }
         if (user != null) {
+            UserInfo userInfo = userService.findUserInfoByUId(user.getUid());
             String token = TextUtils.getString(64);
             Cookie cookie = new Cookie("token", token);
             int time = 0;
@@ -78,7 +80,7 @@ public class UserController {
             jedisClientPool.setex(token, "" + user.getUid(), time);
             cookie.setHttpOnly(true);
             response.addCookie(cookie);
-            return new ResultBean(true, "登录成功", loginVo.getUsername());
+            return new ResultBean(true, "登录成功", TextUtils.empty(userInfo.getNickname()) ? loginVo.getUsername() : userInfo.getNickname());
         }
         return new ResultBean(false, "用户名或密码错误", null);
 
@@ -164,8 +166,8 @@ public class UserController {
             if (vcode == null) {
                 vcode = TextUtils.getString(64);
                 Cookie cookie = new Cookie("vcode", vcode);
-                //保存5分钟
-                cookie.setMaxAge(5 * 60);
+                //保存10分钟
+                cookie.setMaxAge(10 * 60);
                 cookie.setHttpOnly(true);
                 response.addCookie(cookie);
             }
@@ -237,11 +239,17 @@ public class UserController {
      */
     @PostMapping(value = "/addaddress")
     @CrossOrigin
-    public void addAddress(@RequestBody Address address, @CookieValue(value = "token", required = false) String token) {
-        String uid = jedisClientPool.get(token);
-        address.setUid(Integer.parseInt(uid));
-        addressService.add(address);
-        List<Address> list = addressService.findAddressByUId(uid);
+    public ResultBean addAddress(@RequestBody Address address, @CookieValue(value = "token", required = false) String token) {
+        try {
+            String uid = jedisClientPool.get(token);
+            address.setUid(Integer.parseInt(uid));
+            addressService.add(address);
+            List<Address> list = addressService.findAddressByUId(uid);
+            return new ResultBean(true, "添加成功", list);
+        }catch (Exception e){
+            e.printStackTrace();
+            return new ResultBean(false, "服务器繁忙",e.getMessage()) ;
+        }
 
     }
 
@@ -251,13 +259,13 @@ public class UserController {
     @GetMapping(value = "/getaddress")
     @CrossOrigin
     public ResultBean getAddress(@CookieValue(value = "token", required = false) String token) {
-        String uid = jedisClientPool.get(token);
         // 查看地址
         try {
+            String uid = jedisClientPool.get(token);
             List<Address> list = addressService.findAddressByUId(uid);
             return new ResultBean(true, "查询成功", list);
         } catch (Exception e) {
-            return new ResultBean(false, "服务器忙", null);
+            return new ResultBean(false, "服务器忙", e.getMessage());
         }
     }
 
@@ -268,21 +276,28 @@ public class UserController {
     @CrossOrigin
     public ResultBean defaultAddress(@PathVariable(value = "aid") Integer aid, @CookieValue(value = "token", required = false) String token) {
         String uid = jedisClientPool.get(token);
+        if (uid == null) return new ResultBean(false, "登录失效", null);
         // 取得所有地址
         List<Address> addList = addressService.findAddressByUId(uid);
-
-        for (Address address : addList) {
-            if (address.getAid() == aid) {
-                address.setDef(1);
-            } else if (address.getDef().intValue() == 1) {
-                address.setDef(0);
-            } else {
-                continue;
+        if (addList == null) return new ResultBean(false, "您还没有地址", null);
+        try{
+            for (Address address : addList) {
+                if (address.getAid() == aid) {
+                    address.setDef(1);
+                } else if (address.getDef().intValue() == 1) {
+                    address.setDef(0);
+                } else {
+                    continue;
+                }
+                // 修改地址属性
+                addressService.update(address);
             }
-            // 修改地址属性
-            addressService.update(address);
+            return new ResultBean(true, "设置成功", addList);
+        }catch (Exception e){
+            return new ResultBean(false, "设置失败", null);
         }
-        return new ResultBean(true, "设置成功", addList);
+
+
     }
 
     /**

@@ -20,8 +20,10 @@ public class PageBeanUtils {
         pageBean.setData(goodsList);
         ResultBean resultBean = new ResultBean();
         if (goodsList == null || goodsList.size() == 0) {
+            resultBean.setSuccess(false);
             resultBean.setMsg("没有相应的商品");
         } else {
+            resultBean.setSuccess(true);
             resultBean.setMsg("查询物品成功");
         }
         resultBean.setData(pageBean);
@@ -34,8 +36,10 @@ public class PageBeanUtils {
 
         ResultBean resultBean = new ResultBean();
         if (list == null || list.size() == 0) {
+            resultBean.setSuccess(false);
             resultBean.setMsg("没有查询结果");
         } else {
+            resultBean.setSuccess(true);
             resultBean.setMsg("查询成功");
         }
         resultBean.setData(list);
@@ -52,8 +56,10 @@ public class PageBeanUtils {
         pageBean.setData(list);
         ResultBean resultBean = new ResultBean();
         if (list == null || list.size() == 0) {
+            resultBean.setSuccess(false);
             resultBean.setMsg("返回结果失败");
         } else {
+            resultBean.setSuccess(true);
             resultBean.setMsg("返回成功");
         }
         resultBean.setData(pageBean);

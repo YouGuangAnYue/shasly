@@ -3,6 +3,7 @@ package com.shasly.goods.controller;
 import com.shasly.common.bean.Goods;
 import com.shasly.common.bean.GoodsType;
 import com.shasly.common.bean.ResultBean;
+import com.shasly.common.exception.GoodsException;
 import com.shasly.common.jedis.JedisClientPool;
 import com.shasly.common.utils.PageBeanUtils;
 import com.shasly.goods.service.GoodsService;
@@ -10,6 +11,8 @@ import com.shasly.goods.vo.GoodsDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.List;
 
 @RestController
@@ -39,26 +42,42 @@ public class GoodsController {
                                         @PathVariable(value = "pageNum") Integer pageNum) {
 
         if (tid == null) return new ResultBean(false, "商品类型不能为空", null);
-        if (pageSize == null) pageSize = PageBeanUtils.pageSize ;
-        if (pageNum == null) pageNum = 1 ;
-        List<Goods> goodsList = goodsService.findGoodsByTId(tid,pageSize,pageNum);
-        ResultBean resultBean = PageBeanUtils.goodsResultBean(goodsList, pageNum, pageSize);
-        return resultBean;
+        if (pageSize == null) pageSize = PageBeanUtils.pageSize;
+        if (pageNum == null) pageNum = 1;
+        List<Goods> goodsList = null;
+        try {
+            goodsList = goodsService.findGoodsByTId(tid, pageSize, pageNum);
+            return PageBeanUtils.goodsResultBean(goodsList, pageNum, pageSize);
+        } catch (GoodsException e1) {
+            return new ResultBean(false, e1.getMessage(), null);
+        } catch (Exception e2) {
+            return new ResultBean(false, "服务器繁忙", e2.getMessage());
+        }
+
     }
 
+    /**
+     * 分页查看所有商品
+     * @param pageSize
+     * @param pageNum
+     * @return
+     */
     @GetMapping(value = "/getallgoodslist/{pageSize}/{pageNum}")
     @CrossOrigin
     public ResultBean getAllGoodsList(@PathVariable(value = "pageSize") Integer pageSize,
                                       @PathVariable(value = "pageNum") Integer pageNum) {
-        if (pageSize == null) pageSize = PageBeanUtils.pageSize ;
-        if (pageNum == null) pageNum = 1 ;
-        List<Goods> allGoodsList = goodsService.findAllGoods(pageSize,pageNum);
-        return PageBeanUtils.goodsResultBean(allGoodsList, pageNum, pageSize);
+        if (pageSize == null) pageSize = PageBeanUtils.pageSize;
+        if (pageNum == null) pageNum = 1;
+        try {
+            List<Goods> allGoodsList = goodsService.findAllGoods(pageSize, pageNum);
+            return PageBeanUtils.goodsResultBean(allGoodsList, pageNum, pageSize);
+        } catch (Exception e) {
+            return new ResultBean(false,"服务器忙",e.getMessage()) ;
+        }
     }
 
     /**
      * 显示特定id的商品
-     *
      * @param gid
      * @return
      */
@@ -87,15 +106,20 @@ public class GoodsController {
     public ResultBean goodsSearch(@PathVariable(value = "name") String name,
                                   @PathVariable(value = "pageSize") Integer pageSize,
                                   @PathVariable(value = "pageNum") Integer pageNum) {
-        if (pageSize == null) pageSize = PageBeanUtils.pageSize ;
-        if (pageNum == null) pageNum = 1 ;
-        List<Goods> goodsList = goodsService.searchGoodsByName(name,pageSize,pageNum);
+        if (pageSize == null) pageSize = PageBeanUtils.pageSize;
+        if (pageNum == null) pageNum = 1;
+        String _name = null ;
+        try {
+            _name = URLDecoder.decode(name,"UTF-8") ;
+        } catch (UnsupportedEncodingException e) {
+            return new ResultBean(false,"文字编码错误，请修改为UTF-8",null) ;
+        }
+        List<Goods> goodsList = goodsService.searchGoodsByName(_name, pageSize, pageNum);
         return PageBeanUtils.goodsResultBean(goodsList, pageNum, pageSize);
     }
 
     /**
      * 获取商品分类列表
-     *
      * @return
      */
     @GetMapping(value = "/getgoodstypelist")
@@ -109,6 +133,7 @@ public class GoodsController {
 
     /**
      * 添加商品类型
+     *
      * @param goodsType
      * @return
      */

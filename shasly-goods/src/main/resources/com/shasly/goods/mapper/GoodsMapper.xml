@@ -24,7 +24,7 @@
         WHERE tid = #{tid}
     </select>
     <select id="findGoodsByTIdAndLevel" resultType="com.shasly.common.bean.Goods">
-        SELECT gid,name,picture,price,intro,tid_1,tid_2,tid_3
+        SELECT gid,name,picture,price,intro,tid_1,tid_2,tid_3,status
         FROM goods
         <where>
             <if test="level == 1">

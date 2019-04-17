@@ -7,9 +7,9 @@
         INSERT INTO user(username, salt, password, email, phone, status, role)
         VALUES (#{username},#{salt},#{password},#{email},#{phone},#{status},#{role})
     </insert>
-    <insert id="insertUserInfo">
-        INSERT INTO user_info(uid, activation_code)
-        VALUES (#{uid},#{activation_code})
+    <insert id="insertUserInfo" parameterType="com.shasly.common.bean.UserInfo">
+        INSERT INTO user_info(uid,nickname,profile,activation_code)
+        VALUES (#{uid},#{nickname},#{profile},#{activation_code})
     </insert>
     <update id="update" parameterType="com.shasly.common.bean.User">
         UPDATE user SET password=#{password},email=#{email},phone=#{phone},status=#{status},role=#{role}
@@ -45,6 +45,9 @@
         SELECT u.username,u.email,i.activation_code
         FROM user_info i ,user u
         WHERE i.uid = u.uid AND u.username = #{username}
+    </select>
+    <select id="findUserInfoByUId" resultType="com.shasly.common.bean.UserInfo">
+        SELECT * FROM user_info WHERE uid=#{uid}
     </select>
 
 </mapper>

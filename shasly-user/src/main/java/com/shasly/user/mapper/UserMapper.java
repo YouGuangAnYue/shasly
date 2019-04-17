@@ -23,4 +23,5 @@ public interface UserMapper {
 
     UserActivate findUserActivateByUsername(String username);
 
+    UserInfo findUserInfoByUId(int uid);
 }

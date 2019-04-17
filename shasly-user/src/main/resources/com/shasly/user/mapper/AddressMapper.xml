@@ -9,8 +9,11 @@
     </insert>
 
     <update id="update" parameterType="com.shasly.common.bean.Address">
-        UPDATE shasly
-        SET name=#{name},path=#{path},phone=#{phone},def=#{def}
+        UPDATE address
+        SET name=#{name},path=#{path},phone=#{phone}
+        <if test="def != null">
+            ,def=#{def}
+        </if>
         WHERE uid = #{uid} AND aid = #{aid}
     </update>
 

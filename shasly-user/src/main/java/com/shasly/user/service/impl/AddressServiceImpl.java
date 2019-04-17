@@ -27,6 +27,7 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     public boolean add(Address address) {
+        address.setDef(0);
         int len = addressMapper.insert(address) ;
         if (len > 0) {
             return true ;

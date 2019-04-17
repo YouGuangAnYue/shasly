@@ -4,6 +4,7 @@ import com.github.pagehelper.PageHelper;
 import com.shasly.common.bean.Goods;
 import com.shasly.common.bean.GoodsType;
 import com.shasly.common.bean.User;
+import com.shasly.common.exception.GoodsException;
 import com.shasly.common.jedis.JedisClientPool;
 import com.shasly.common.utils.PageBeanUtils;
 import com.shasly.goods.mapper.GoodsMapper;
@@ -26,8 +27,9 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Override
     public List<Goods> findAllGoods(Integer pageSize,Integer pageNum) {
-
-        return goodsMapper.findAllGoods();
+        PageHelper.startPage(pageNum, pageSize);
+        List<Goods> goodsList = goodsMapper.findAllGoods();
+        return goodsList ;
     }
 
     @Override
@@ -77,6 +79,7 @@ public class GoodsServiceImpl implements GoodsService {
     @Override
     public List<Goods> findGoodsByTId(Integer tid,Integer pageSize,Integer pageNum) {
         GoodsType type = goodsMapper.findGoodsTypeByTId(tid) ;
+        if (type == null) throw new GoodsException("无此类型商品 ") ;
         PageHelper.startPage(pageNum, pageSize);
         List<Goods> goodsList = goodsMapper.findGoodsByTIdAndLevel(tid,type.getLevel()) ;
         return goodsList ;
