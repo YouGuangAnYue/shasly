@@ -32,6 +32,7 @@ import com.shasly.cart.mapper.CartMapper;
 import com.shasly.cart.service.CartService;
 import com.shasly.common.bean.CartDetail;
 import com.shasly.common.bean.CartList;
+import com.shasly.common.exception.CartException;
 import com.shasly.common.jedis.JedisClientPool;
 import com.shasly.common.utils.PageBeanUtils;
 import org.springframework.stereotype.Service;
@@ -82,7 +83,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Integer findCIdByUId(Integer uid) {
-        return null;
+        return cartMapper.findCIdByUId(uid);
     }
 
     @Override
@@ -117,7 +118,7 @@ public class CartServiceImpl implements CartService {
         CartDetail cartDetail = cartMapper.findCartDetailByCIdAndGId(cid, gid);
         //如果购物车中商品数量不足，则失败
         if (cartDetail.getNumber() == 1 && number < 0)
-            return false ;
+            throw new CartException("商品数不能小于1") ;
         int len = cartMapper.updateNumberById(cartDetail.getId(),number) ;
         if (len > 0)
             return true ;

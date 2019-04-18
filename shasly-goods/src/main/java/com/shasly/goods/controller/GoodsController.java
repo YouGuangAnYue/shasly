@@ -133,7 +133,6 @@ public class GoodsController {
 
     /**
      * 添加商品类型
-     *
      * @param goodsType
      * @return
      */

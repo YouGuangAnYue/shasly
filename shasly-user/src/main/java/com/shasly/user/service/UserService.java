@@ -19,4 +19,6 @@ public interface UserService {
     boolean activateUser(String username, String email, String activation_code);
 
     UserInfo findUserInfoByUId(int uid);
+
+    Integer findCartByBId(int uid);
 }

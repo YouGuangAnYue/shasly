@@ -20,7 +20,9 @@ public interface CartMapper {
 
     int updateNumberByCIdAndGId(@Param("cid") String cid,@Param("gid") Integer gid,@Param("number") Integer number);
 
-    CartDetail findCartDetailByCIdAndGId(String cid, Integer gid);
+    CartDetail findCartDetailByCIdAndGId(@Param(value = "cid") String cid,@Param(value = "gid") Integer gid);
 
     int deleteByCId(int cid);
+
+    Integer findCIdByUId(Integer uid);
 }

@@ -7,6 +7,7 @@ import com.shasly.common.bean.User;
 import com.shasly.common.bean.UserInfo;
 import com.shasly.common.exception.UserException;
 import com.shasly.common.jedis.JedisClientPool;
+import com.shasly.common.properties.CookieProperties;
 import com.shasly.common.utils.TextUtils;
 import com.shasly.user.service.AddressService;
 import com.shasly.user.service.UserService;
@@ -25,6 +26,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/user")
+@CrossOrigin(origins = "*",maxAge = 3600,allowCredentials="true")
 public class UserController {
 
     private final UserService userService;
@@ -48,7 +50,6 @@ public class UserController {
      * @return
      */
     @PostMapping(value = "/login")
-    @CrossOrigin
     public ResultBean login(@RequestBody LoginVo loginVo, @CookieValue(value = "vcode", required = false) String vcode, HttpServletResponse response) {
 
         // 用户名密码不能为空
@@ -56,35 +57,43 @@ public class UserController {
             return new ResultBean(false, "用户名或密码为空", null);
         }
         //验证码不能为空
-        if (vcode == null) return new ResultBean(false,"验证码不能为空",null) ;
+        if (vcode == null) return new ResultBean(false,"验证码已过期",null) ;
         // 检验验证码
         if (vcode == null || !jedisClientPool.get(vcode).equals(loginVo.getVcode())) {
             return new ResultBean(false, "验证码错误", null);
         }
         // 查询用户是否存在
         User user = null;
+        Integer cid = null ;
+        UserInfo userInfo = null ;
         try {
             user = userService.login(loginVo.getUsername(), loginVo.getPassword());
+            if (user != null) {
+                cid = userService.findCartByBId(user.getUid());
+                userInfo = userService.findUserInfoByUId(user.getUid());
+            }else {
+                return new ResultBean(false, "用户名或密码错误", null);
+            }
         } catch (UserException e) {
             return new ResultBean(false, e.getMessage(), null);
         }
-        if (user != null) {
-            UserInfo userInfo = userService.findUserInfoByUId(user.getUid());
-            String token = TextUtils.getString(64);
-            Cookie cookie = new Cookie("token", token);
-            int time = 0;
-            if (loginVo.getAuto() != null) {
-                time = 14 * 24 * 60 * 60;
-            } else {
-                time = 9 * 60 * 60 ;
-            }
-            cookie.setMaxAge(time);
-            jedisClientPool.setex(token, "" + user.getUid(), time);
-            cookie.setHttpOnly(true);
-            response.addCookie(cookie);
-            return new ResultBean(true, "登录成功", TextUtils.empty(userInfo.getNickname()) ? loginVo.getUsername() : userInfo.getNickname());
+
+        String token = TextUtils.getString(64);
+        Cookie cookie = new Cookie("token", token);
+        cookie.setDomain(CookieProperties.DOMAIN_PATTERN);
+        cookie.setPath(CookieProperties.PATH);
+        int time = 0;
+        if (loginVo.getAuto() != null) {
+            time = CookieProperties.MAX_AGE_TIME_TOKEN_AUTO ;
+        } else {
+            time = CookieProperties.MAX_AGE_TIME_TOKEN ;
         }
-        return new ResultBean(false, "用户名或密码错误", null);
+        cookie.setMaxAge(time);
+        jedisClientPool.setex(token, "" + user.getUid(), time);
+        jedisClientPool.setex(user.getUid() + "cart","" + cid , time);
+        cookie.setHttpOnly(true);
+        response.addCookie(cookie);
+        return new ResultBean(true, "登录成功", TextUtils.empty(userInfo.getNickname()) ? loginVo.getUsername() : userInfo.getNickname());
 
     }
 
@@ -94,7 +103,6 @@ public class UserController {
      * @return
      */
     @PostMapping(value = "/register")
-    @CrossOrigin
     public ResultBean register(@RequestBody RegisterVo registerVo) {
         if (!registerVo.getPassword().equals(registerVo.getRePassword())) {
             return new ResultBean(false, "两次密码不一致", null);
@@ -125,7 +133,6 @@ public class UserController {
      * @return
      */
     @GetMapping(value = "/checkusername/{username}")
-    @CrossOrigin
     public ResultBean checkUserName(@PathVariable("username") String username) {
 
         boolean b = userService.checkUserName(username);
@@ -144,7 +151,6 @@ public class UserController {
      * @param response
      */
     @GetMapping(value = "/vcode")
-    @CrossOrigin
     public void validateCode(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         //获取vcde标记
@@ -168,7 +174,7 @@ public class UserController {
                 vcode = TextUtils.getString(64);
                 Cookie cookie = new Cookie("vcode", vcode);
                 //保存10分钟
-                cookie.setMaxAge(8 * 60 * 60 + 10 * 60);
+                cookie.setMaxAge(CookieProperties.MAX_AGE_TIME_VCODE);
                 cookie.setHttpOnly(true);
                 response.addCookie(cookie);
             }
@@ -204,7 +210,6 @@ public class UserController {
      * @return
      */
     @GetMapping(value = "/checkcode/{code}")
-    @CrossOrigin
     public ResultBean checkCode(@CookieValue(value = "vcode", required = false) String vcode,
                                 @PathVariable("code") String code) {
 
@@ -224,7 +229,6 @@ public class UserController {
      * 退出登录
      */
     @GetMapping(value = "/logout")
-    @CrossOrigin
     public ResultBean logOut(@CookieValue(value = "token", required = false) String token, HttpServletResponse response) {
 
         if (token != null) {
@@ -242,7 +246,6 @@ public class UserController {
      * 添加地址
      */
     @PostMapping(value = "/addaddress")
-    @CrossOrigin
     public ResultBean addAddress(@RequestBody Address address, @CookieValue(value = "token", required = false) String token) {
         try {
             String uid = jedisClientPool.get(token);
@@ -261,7 +264,6 @@ public class UserController {
      * 获取用户全部地址
      */
     @GetMapping(value = "/getaddress")
-    @CrossOrigin
     public ResultBean getAddress(@CookieValue(value = "token", required = false) String token) {
         // 查看地址
         try {
@@ -277,7 +279,6 @@ public class UserController {
      * 修改为默认地址
      */
     @GetMapping(value = "/defaultAddress/{aid}")
-    @CrossOrigin
     public ResultBean defaultAddress(@PathVariable(value = "aid") Integer aid, @CookieValue(value = "token", required = false) String token) {
         String uid = jedisClientPool.get(token);
         if (uid == null) return new ResultBean(false, "登录失效", null);
@@ -300,8 +301,6 @@ public class UserController {
         }catch (Exception e){
             return new ResultBean(false, "设置失败", null);
         }
-
-
     }
 
     /**
@@ -321,7 +320,6 @@ public class UserController {
      * 修改地址
      */
     @PostMapping(value = "/updateaddress")
-    @CrossOrigin
     public ResultBean updateAddress(@CookieValue(value = "token", required = false) String token, @RequestBody Address address) {
         String uid = jedisClientPool.get(token);
         address.setUid(Integer.parseInt(uid));

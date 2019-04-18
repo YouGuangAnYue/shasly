@@ -111,6 +111,8 @@ public class UserServiceImpl implements UserService {
 
         if (uid == null || uid.intValue() < 0) return false;
 
+        //分发一个购物车
+        userMapper.addCartByUId(uid) ;
         //设置用户信息
         UserInfo userInfo = new UserInfo();
         userInfo.setUid(uid);
@@ -164,6 +166,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserInfo findUserInfoByUId(int uid) {
         return userMapper.findUserInfoByUId(uid);
+    }
+
+    @Override
+    public Integer findCartByBId(int uid) {
+        Integer cid = userMapper.findCartByUId(uid);
+        if (cid == null){
+            throw new UserException("该用户没有分配购物车") ;
+        }
+        return cid ;
     }
 
 }

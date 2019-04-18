@@ -57,10 +57,10 @@ public class PageBeanUtils {
         ResultBean resultBean = new ResultBean();
         if (list == null || list.size() == 0) {
             resultBean.setSuccess(false);
-            resultBean.setMsg("返回结果失败");
+            resultBean.setMsg("失败");
         } else {
             resultBean.setSuccess(true);
-            resultBean.setMsg("返回成功");
+            resultBean.setMsg("成功");
         }
         resultBean.setData(pageBean);
 

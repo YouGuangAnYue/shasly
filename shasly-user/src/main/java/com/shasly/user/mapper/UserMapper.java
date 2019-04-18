@@ -24,4 +24,8 @@ public interface UserMapper {
     UserActivate findUserActivateByUsername(String username);
 
     UserInfo findUserInfoByUId(int uid);
+
+    int addCartByUId(Integer uid);
+
+    Integer findCartByUId(int uid);
 }

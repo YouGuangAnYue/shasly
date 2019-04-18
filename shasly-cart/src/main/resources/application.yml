@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql://39.105.211.35:3307
+    url: jdbc:mysql://39.105.211.35:3307/shasly
     driver-class-name: com.mysql.jdbc.Driver
     username: root
     password: 123456
